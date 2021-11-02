@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 using System.Collections.Generic;
@@ -7,9 +8,15 @@ namespace CookingPrototype.Kitchen {
 		public string                  FoodName = null;
 		public List<AbstractFoodPlace> Places   = new List<AbstractFoodPlace>();
 
+		private Food _food;
+		
+		private void Start() {
+			_food = new Food(FoodName);
+		}
+
 		void Update() {
 			foreach ( var place in Places ) {
-				place.TryPlaceFood(new Food(FoodName));
+				place.TryPlaceFood(_food);
 			}
 		}
 	}
