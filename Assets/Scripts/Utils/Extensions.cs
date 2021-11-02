@@ -29,6 +29,9 @@ public static class Utils {
         
 		list.Clear();
 	}
+	
+	public static TimeSpan ToTimeSpanSeconds(this float value)
+		=> TimeSpan.FromSeconds(value);
 }
 
 }

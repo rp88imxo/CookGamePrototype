@@ -10,6 +10,7 @@ public class CustomersConfig {
 	public int CustomersTargetNumber { get; set; } = 15;
 	public float CustomerWaitTime { get; set; }= 18f;
 	public float CustomerSpawnTime{ get; set; } = 3f;
+	public int MaxOrdersCount { get; set; } = 3;
 }
 
 	public class CustomersControllerNew {
@@ -27,6 +28,7 @@ public class CustomersConfig {
 
 		public void InitGameSession(CustomersConfig config) {
 			_currentCustomersConfig = config;
+			_customersViewPresenter.
 		}
 		
 		
