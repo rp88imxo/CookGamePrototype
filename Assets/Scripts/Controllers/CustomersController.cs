@@ -18,8 +18,7 @@ namespace CookingPrototype.Controllers {
 		public float               CustomerSpawnTime     = 3f;
 		public List<CustomerPlace> CustomerPlaces        = null;
 
-		[HideInInspector]
-		public int TotalCustomersGenerated { get; private set; } = 0;
+		public int TotalCustomersGenerated { get; private set; }
 
 		public event Action TotalCustomersGeneratedChanged;
 

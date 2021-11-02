@@ -73,8 +73,10 @@ namespace CookingPrototype.Controllers {
 		}
 
 		public Order FindOrder(List<string> foods) {
-			return Orders.Find(x => {
-				if ( x.Foods.Count != foods.Count ) {
+			return Orders.Find(x => 
+			{
+				if ( x.Foods.Count != foods.Count ) 
+				{
 					return false;
 				}
 

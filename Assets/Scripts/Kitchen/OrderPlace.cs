@@ -38,11 +38,12 @@ namespace CookingPrototype.Kitchen {
 		void UpdatePossibleOrders() {
 			var ordersToRemove = new List<Order>();
 			foreach ( var order in _possibleOrders ) {
-				if ( order.Foods.Where(x => x.Name == CurOrder[CurOrder.Count - 1]).Count() == 0 ) {
+				if ( order.Foods.Count(x => x.Name == CurOrder[CurOrder.Count - 1]) == 0 ) {
 					ordersToRemove.Add(order);
 				}
 			}
-			_possibleOrders.RemoveAll(x => ordersToRemove.Contains(x));
+
+			_possibleOrders = _possibleOrders.Except(ordersToRemove).ToList();
 		}
 
 		public override bool TryPlaceFood(Food food) {

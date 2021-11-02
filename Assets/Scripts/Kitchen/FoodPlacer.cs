@@ -10,7 +10,8 @@ namespace CookingPrototype.Kitchen {
 		public List<AbstractFoodPlace> Places   = new List<AbstractFoodPlace>();
 
 		[UsedImplicitly]
-		public void TryPlaceFood() {
+		public void TryPlaceFood() 
+		{
 			foreach ( var place in Places ) {
 				if ( place.TryPlaceFood(new Food(FoodName)) ) {
 					return;
