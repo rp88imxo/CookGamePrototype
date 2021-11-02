@@ -14,7 +14,7 @@ namespace CookingPrototype.Kitchen {
 		public List<string>    CurOrder        = new List<string>();
 		public event Action    CurOrderUpdated;
 
-		List<Order>  _possibleOrders = new List<Order>();
+		List<OrderModel>  _possibleOrders = new List<OrderModel>();
 
 		void Start() {
 			_possibleOrders.AddRange(OrdersController.Instance.Orders);
@@ -36,7 +36,7 @@ namespace CookingPrototype.Kitchen {
 		}
 
 		void UpdatePossibleOrders() {
-			var ordersToRemove = new List<Order>();
+			var ordersToRemove = new List<OrderModel>();
 			foreach ( var order in _possibleOrders ) {
 				if ( order.Foods.Count(x => x.Name == CurOrder[CurOrder.Count - 1]) == 0 ) {
 					ordersToRemove.Add(order);

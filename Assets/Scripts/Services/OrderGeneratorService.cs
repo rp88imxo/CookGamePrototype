@@ -9,10 +9,10 @@ using UnityEngine;
 namespace CookingPrototype.Services {
 public class OrderGeneratorService {
 
-	private readonly List<Order> _orders;
+	private readonly List<OrderModel> _orders;
 	
 	public OrderGeneratorService() {
-		_orders = new List<Order>();
+		_orders = new List<OrderModel>();
 	}
 
 	public void Init(string orderConfigPath = "Configs/Orders") {
@@ -30,16 +30,16 @@ public class OrderGeneratorService {
 		}
 	}
 	
-	public Order GenerateRandomOrder() 
+	public OrderModel GenerateRandomOrder() 
 		=> _orders[Random.Range(0, _orders.Count)];
 	
-	private Order ParseOrder(XmlNode node) {
+	private OrderModel ParseOrder(XmlNode node) {
 		var foods =
 			(from XmlNode foodNode in node.SelectNodes("food")
-				select new Order.OrderFood(foodNode.InnerText,
+				select new OrderModel.OrderFood(foodNode.InnerText,
 					foodNode.SelectSingleNode("@needs")?.InnerText))
 			.ToList();
-		return new Order(node.SelectSingleNode("@name").Value, foods);
+		return new OrderModel(node.SelectSingleNode("@name").Value, foods);
 	}
 }
 }

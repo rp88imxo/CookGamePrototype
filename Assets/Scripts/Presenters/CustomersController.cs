@@ -26,7 +26,7 @@ namespace CookingPrototype.Controllers {
 		const string CUSTOMER_PREFABS_PATH = "Prefabs/Customer";
 
 		float _timer = 0f;
-		Stack<List<Order>> _orderSets;
+		Stack<List<OrderModel>> _orderSets;
 
 		bool HasFreePlaces {
 			get {
@@ -94,16 +94,16 @@ namespace CookingPrototype.Controllers {
 			return customer;
 		}
 
-		Order GenerateRandomOrder() {
+		OrderModel GenerateRandomOrder() {
 			var oc = OrdersController.Instance;
 			return oc.Orders[Random.Range(0, oc.Orders.Count)];
 		}
 
 		public void Init() {
 			var totalOrders = 0;
-			_orderSets = new Stack<List<Order>>();
+			_orderSets = new Stack<List<OrderModel>>();
 			for ( var i = 0; i < CustomersTargetNumber; i++ ) {
-				var orders = new List<Order>();
+				var orders = new List<OrderModel>();
 				var ordersNum = Random.Range(1, 4);
 				for ( var j = 0; j < ordersNum; j++ ) {
 					orders.Add(GenerateRandomOrder());
@@ -138,9 +138,9 @@ namespace CookingPrototype.Controllers {
 		///  Пытаемся обслужить посетителя с заданным заказом и наименьшим оставшимся временем ожидания.
 		///  Если у посетителя это последний оставшийся заказ из списка, то отпускаем его.
 		/// </summary>
-		/// <param name="order">Заказ, который пытаемся отдать</param>
+		/// <param name="orderModel">Заказ, который пытаемся отдать</param>
 		/// <returns>Флаг - результат, удалось ли успешно отдать заказ</returns>
-		public bool ServeOrder(Order order) {
+		public bool ServeOrder(OrderModel orderModel) {
 			throw  new NotImplementedException("ServeOrder: this feature is not implemented.");
 		}
 	}

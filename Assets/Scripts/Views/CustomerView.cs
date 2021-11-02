@@ -7,6 +7,7 @@ using UnityEngine.UI;
 namespace CookingPrototype.Kitchen.Views {
 
 public class CustomerViewModel {
+	public int Id { get; set; }
 	// Should be replaced with assetReference after Prototype stage
 	public string CustomerIconName { get; set; }
 	public float OrderInitialTime { get; set; }
@@ -25,7 +26,7 @@ public class CustomerViewModel {
 		[SerializeField]
 		private Transform _ordersContainer;
 		
-		private readonly List<OrderView> _orders = new List<OrderView>();
+		private readonly Dictionary<string,OrderView> _orders = new Dictionary<string,OrderView>();
 
 		public async UniTaskVoid Repaint(CustomerViewModel customerViewModel) {
 			_customerIcon.gameObject.SetActive(false);
@@ -34,6 +35,12 @@ public class CustomerViewModel {
 			
 			_timerView.Init(customerViewModel.OrderInitialTime);
 			CreateOrders(customerViewModel.OrdersViewsNames).Forget();
+		}
+
+		public void RepaintServedOrder(string orderModelName) {
+			var orderView = _orders[orderModelName];
+			orderView.DestroySelf();
+			_orders.Remove(orderModelName);
 		}
 
 		public void RepaintTimer(float timeLeft) {
@@ -45,10 +52,8 @@ public class CustomerViewModel {
 			foreach ( var order in ordersViewsNames ) {
 				var orderViewPrefab = await Resources.LoadAsync<GameObject>(order) as OrderView;
 				var go = Instantiate(orderViewPrefab, _ordersContainer);
-				_orders.Add(go);
+				_orders.Add(order,go);
 			}
 		}
-		
-		
 	}
 }

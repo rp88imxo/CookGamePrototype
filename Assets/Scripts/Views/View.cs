@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using JetBrains.Annotations;
+using NaughtyAttributes;
 using UnityEngine;
 
 namespace CookingPrototype.Kitchen.Views {

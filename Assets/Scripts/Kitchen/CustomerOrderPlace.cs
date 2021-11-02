@@ -2,17 +2,17 @@ using UnityEngine;
 
 namespace CookingPrototype.Kitchen {
 	public sealed class CustomerOrderPlace : MonoBehaviour {
-		public Order CurOrder { get; private set; } = null;
+		public OrderModel CurOrderModel { get; private set; } = null;
 
-		public bool IsActive { get { return CurOrder != null; } }
+		public bool IsActive { get { return CurOrderModel != null; } }
 
-		public void Init(Order order) {
-			CurOrder = order;
+		public void Init(OrderModel orderModel) {
+			CurOrderModel = orderModel;
 			gameObject.SetActive(true);
 		}
 
 		public void Complete() {
-			CurOrder = null;
+			CurOrderModel = null;
 			gameObject.SetActive(false);
 		}
 	}

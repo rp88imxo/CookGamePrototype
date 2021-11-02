@@ -24,7 +24,7 @@ public sealed class OrdersController : MonoBehaviour {
 		private set { _instance = value; }
 	}
 
-	public List<Order> Orders = new List<Order>();
+	public List<OrderModel> Orders = new List<OrderModel>();
 
 	bool _isInit = false;
 
@@ -67,16 +67,16 @@ public sealed class OrdersController : MonoBehaviour {
 		_isInit = true;
 	}
 
-	Order ParseOrder(XmlNode node) {
+	OrderModel ParseOrder(XmlNode node) {
 		var foods =
 			(from XmlNode foodNode in node.SelectNodes("food")
-				select new Order.OrderFood(foodNode.InnerText,
+				select new OrderModel.OrderFood(foodNode.InnerText,
 					foodNode.SelectSingleNode("@needs")?.InnerText))
 			.ToList();
-		return new Order(node.SelectSingleNode("@name").Value, foods);
+		return new OrderModel(node.SelectSingleNode("@name").Value, foods);
 	}
 
-	public Order FindOrder(List<string> foods) {
+	public OrderModel FindOrder(List<string> foods) {
 		return Orders.Find(x => {
 			if ( x.Foods.Count != foods.Count ) {
 				return false;

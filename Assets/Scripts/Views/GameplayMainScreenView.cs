@@ -3,10 +3,11 @@ using System.Collections.Generic;
 using UnityEngine;
 
 namespace CookingPrototype.Kitchen.Views {
-	public class GameplayMainScreenView : MonoBehaviour
-	{
-		
-		
+	public class GameplayMainScreenView : View {
+		[SerializeField]
+		private CustomersViewPresenter _customersViewPresenter;
+
+		public CustomersViewPresenter CustomersViewPresenter => _customersViewPresenter;
 	}
 }
 
