@@ -21312,7 +21312,7 @@ MonoBehaviour:
   m_PreserveAspect: 0
   m_FillCenter: 1
   m_FillMethod: 1
-  m_FillAmount: 0.475
+  m_FillAmount: 0.756
   m_FillClockwise: 1
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
@@ -21443,6 +21443,7 @@ GameObject:
   - component: {fileID: 5788303913102557643}
   - component: {fileID: 5790642735117160895}
   - component: {fileID: 5967758536279804847}
+  - component: {fileID: 6001655477928951708}
   m_Layer: 0
   m_Name: OrderTime
   m_TagString: Untagged
@@ -21450,6 +21451,19 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
+--- !u!114 &6001655477928951708
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6001655477928951707}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 55a86266f924d054fa5b73315b63ce30, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _timerProgressBar: {fileID: 5967758536279804847}
 --- !u!1 &6002242458945282567
 GameObject:
   m_ObjectHideFlags: 0
@@ -21534,3 +21548,5 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _customerIcon: {fileID: 0}
+  _timerView: {fileID: 0}
+  _ordersContainer: {fileID: 0}

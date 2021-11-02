@@ -17,4 +17,18 @@ namespace CookingPrototype.Utilities {
 		}
 	}
 
+public static class Utils {
+	public static void ClearMonoBehaviourCollection<T>(ICollection<T> list)
+		where T : MonoBehaviour
+	{
+		if (list.Count == 0)
+			return;
+        
+		foreach (var monoBehaviour in list)
+			UnityEngine.Object.Destroy(monoBehaviour.gameObject);
+        
+		list.Clear();
+	}
+}
+
 }
