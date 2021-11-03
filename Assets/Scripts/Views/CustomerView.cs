@@ -11,7 +11,6 @@ public class CustomerViewModel {
 	// Should be replaced with assetReference after Prototype stage
 	public string CustomerIconName { get; set; }
 	public float OrderInitialTime { get; set; }
-
 	public List<string> OrdersViewsNames { get; set; }
 }
 
@@ -26,7 +25,7 @@ public class CustomerViewModel {
 		[SerializeField]
 		private Transform _ordersContainer;
 		
-		private readonly Dictionary<string,OrderView> _orders = new Dictionary<string,OrderView>();
+		private readonly Dictionary<string,CustomerOrderView> _orders = new Dictionary<string,CustomerOrderView>();
 
 		public async UniTaskVoid Repaint(CustomerViewModel customerViewModel) {
 			_customerIcon.gameObject.SetActive(false);
@@ -50,7 +49,7 @@ public class CustomerViewModel {
 		private async UniTaskVoid CreateOrders(IEnumerable<string> ordersViewsNames) {
 			
 			foreach ( var order in ordersViewsNames ) {
-				var orderViewPrefab = await Resources.LoadAsync<GameObject>(order) as OrderView;
+				var orderViewPrefab = await Resources.LoadAsync<GameObject>(order) as CustomerOrderView;
 				var go = Instantiate(orderViewPrefab, _ordersContainer);
 				_orders.Add(order,go);
 			}

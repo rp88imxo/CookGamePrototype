@@ -2,6 +2,7 @@
 namespace CookingPrototype.Kitchen {
 	public sealed class Food {
 		public enum FoodStatus {
+			Empty,
 			Raw,
 			Cooked,
 			Overcooked

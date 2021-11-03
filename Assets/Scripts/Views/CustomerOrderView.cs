@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 namespace CookingPrototype.Kitchen.Views {
-	public class OrderView : MonoBehaviour {
+	public class CustomerOrderView : MonoBehaviour {
 		
 		[SerializeField] 
 		private GameObject _root;

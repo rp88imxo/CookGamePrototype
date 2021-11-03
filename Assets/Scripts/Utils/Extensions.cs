@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using CookingPrototype.Kitchen;
+using CookingPrototype.Kitchen.Views;
 using UnityEngine;
 
 namespace CookingPrototype.Utilities {
