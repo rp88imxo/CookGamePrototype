@@ -24,6 +24,9 @@ public class OrderViewVisualizer : MonoBehaviour
 	private List<OrderComponentsVisualizer> _foodStatusVisualizers;
 	
 	public void Repaint(List<string> foodComponents) {
+		if ( foodComponents == null ) {
+			return;
+		}
 		_foodStatusVisualizers.ForEach(x => 
 			x.FoodSprite.SetActive(foodComponents.Contains(x.FoodComponentName)));
 	}

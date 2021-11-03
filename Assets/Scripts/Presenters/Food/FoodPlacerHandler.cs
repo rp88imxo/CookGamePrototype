@@ -5,14 +5,20 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 
 namespace CookingPrototype.Kitchen.Views {
-public class FoodPlaceNew : MonoBehaviour, IPointerUpHandler {
+public class FoodPlacerHandler : MonoBehaviour, IPointerUpHandler {
+	[SerializeField]
+	private Food.FoodStatus _foodStatus = Food.FoodStatus.Cooked;
+	
+	[SerializeField]
+	private string _foodName;
 	
 	private Food _currentFood;
 
-	private Action<Food> _onFoodPlaceClicked;
+	private Func<Food, bool> _onFoodPlaceClicked;
 	
-	public void Init(Action<Food> onFoodPlaceClickedCallback) {
+	public void Init(Func<Food, bool> onFoodPlaceClickedCallback) {
 		_onFoodPlaceClicked = onFoodPlaceClickedCallback;
+		_currentFood = new Food(_foodName, _foodStatus);
 	}
 
 	public void Repaint(Food food) {

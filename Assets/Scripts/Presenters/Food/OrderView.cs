@@ -21,10 +21,13 @@ public class OrderView : MonoBehaviour {
 	[SerializeField]
 	private PointerInputHandler _doubleTapHandler;
 	
-	private Action _onServeClicked;
-	private Action _onTrashClicked;
+	private Action<OrderModelHandler> _onServeClicked;
+	private Action<OrderModelHandler> _onTrashClicked;
+	private OrderModelHandler _associatedModelHandler;
 	
-	public void Init(Action onServeClicked, Action onTrashClicked) {
+	public void Init(OrderModelHandler associatedModelHandler,Action<OrderModelHandler> onServeClicked, Action<OrderModelHandler> onTrashClicked) {
+		_associatedModelHandler = associatedModelHandler;
+		
 		_onServeClicked = onServeClicked;
 		_onTrashClicked = onTrashClicked;
 		
@@ -43,11 +46,11 @@ public class OrderView : MonoBehaviour {
 	#region TAP_CALLBACKS
 
 	private void DoubleTapCallback() {
-		_onTrashClicked?.Invoke();
+		_onTrashClicked?.Invoke(_associatedModelHandler);
 	}
 
 	private void TapCallback() {
-		_onServeClicked?.Invoke();
+		_onServeClicked?.Invoke(_associatedModelHandler);
 	}
 
 	#endregion

@@ -33,5 +33,11 @@ public class SpawnPlacesHandler : MonoBehaviour {
 	public Transform GetSpawnPoint() {
 		return _spawnPoints.FirstOrDefault(x => x.childCount == 0);
 	}
+	
+	public List<Transform> GetAllFreeSpawnPoints() {
+		return _spawnPoints
+			.Where(x => x.childCount == 0)
+			.ToList();
+	}
 }
 }

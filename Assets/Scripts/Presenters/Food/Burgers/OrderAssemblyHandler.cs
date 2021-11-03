@@ -17,6 +17,8 @@ public class OrderModelHandler {
 	private List<OrderModel> _possibleOrders = new List<OrderModel>();
 	private List<string> _curOrder = new List<string>();
 
+	public List<string> CurOrder => new List<string>(_curOrder);
+
 	private Action<OrderModelHandler> _onOrderUpdated;
 
 	public OrderModelHandler(IEnumerable<OrderModel> possibleOrders,
@@ -57,7 +59,6 @@ public class OrderModelHandler {
 		_onOrderUpdated?.Invoke(this);
 		return true;
 	}
-	
 }
 
 public class OrderAssemblyHandler : MonoBehaviour {
@@ -68,13 +69,20 @@ public class OrderAssemblyHandler : MonoBehaviour {
 	private List<Transform> _spawnPlaces;
 
 	[SerializeField]
-	private SpawnPlacesHandler _burgerSpawnPlacesHandler;
+	private SpawnPlacesHandler _spawnPlacesHandler;
 	
 	private OrderAssemblyConfig _currentOrderAssemblyConfig;
 	
-	private Action<OrderModel> _onServeClicked;
-	
-	public void Init(OrderAssemblyConfig orderAssemblyConfig, Action<OrderModel> onServeClickedCallback) {
+	private Action<List<string>> _onServeClicked;
+
+	private Dictionary<OrderModelHandler, OrderView> _orderViews =
+		new Dictionary<OrderModelHandler, OrderView>();
+
+	private List<OrderModel> _defaultPossibleOrders;
+
+	public void Init(OrderAssemblyConfig orderAssemblyConfig,List<OrderModel> possibleOrders, Action<List<string>> onServeClickedCallback) {
+		_defaultPossibleOrders = possibleOrders;
+		
 		_onServeClicked = onServeClickedCallback;
 		_currentOrderAssemblyConfig = orderAssemblyConfig;
 		
@@ -83,11 +91,48 @@ public class OrderAssemblyHandler : MonoBehaviour {
 			.Take(_currentOrderAssemblyConfig.TotalPlaces)
 			.ToList();
 		totalActivePlaces.ForEach(x => x.gameObject.SetActive(true));
-		_burgerSpawnPlacesHandler.AddSpawnPoints(totalActivePlaces);
+		_spawnPlacesHandler.AddSpawnPoints(totalActivePlaces);
 	}
 
-	public bool TryAddFoodComponent(Food food) {
+	private void CreateViews() {
+		foreach ( var spawnPoint in _spawnPlacesHandler.GetAllFreeSpawnPoints() ) {
+			var modelHandler = new OrderModelHandler(_defaultPossibleOrders, ONOrderUpdatedCallback);
+			
+			var go = Instantiate(_orderViewPrefab, spawnPoint);
+			go.Init(modelHandler,ONServeClicked, ONTrashClicked );
+			go.Repaint(new BurgerOrderViewModel {
+				FoodComponents = null
+			});
+		}
+	}
+
+	private void ONOrderUpdatedCallback(OrderModelHandler obj) {
 		
+	}
+
+	#region ORDER_VIEW_CALLBACKS
+
+	private void ONTrashClicked(OrderModelHandler orderModelHandler) {
+		var orderView = _orderViews[orderModelHandler];
+		orderView.DestroySelf();
+		_orderViews.Remove(orderModelHandler);
+	}
+
+	private void ONServeClicked(OrderModelHandler orderModelHandler) {
+		_onServeClicked?.Invoke(orderModelHandler.CurOrder);
+	}
+	
+	#endregion
+	
+
+	public bool TryAddFoodComponent(Food food) {
+		foreach ( var orderModelHandler in _orderViews.Keys ) {
+			if ( orderModelHandler.TryPlaceFood(food) ) {
+				return true;
+			}
+		}
+		
+		return false;
 	}
 	
 }

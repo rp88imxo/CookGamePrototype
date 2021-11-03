@@ -92,12 +92,12 @@ public class FoodViewModelHandler {
 	}
 }
 
-public class BurgersPanHandler : MonoBehaviour {
+public class CookableFoodHandler : MonoBehaviour {
 	[SerializeField]
 	private CookingFoodView _burgerCutletOnPanViewPrefab;
 
 	[SerializeField]
-	private FoodPlaceNew _burgerCutletPlacer;
+	private FoodPlacerHandler _burgerCutletPlacer;
 
 	[SerializeField]
 	private List<Transform> _burgerPanPlaces;
@@ -110,13 +110,11 @@ public class BurgersPanHandler : MonoBehaviour {
 	private Dictionary<FoodViewModelHandler, CookingFoodView> _foodViews =
 		new Dictionary<FoodViewModelHandler, CookingFoodView>();
 
-	private Action<Food> _onServeClicked;
-	
-	private void Awake() {
-		_burgerCutletPlacer.Init(OnCutletPlaceClickedCallback);
-	}
+	private Func<Food,bool> _onServeClicked;
 
-	public void Init(BurgerPanConfig burgerPanConfig, Action<Food> onServeClickedCallback) {
+	public void Init(BurgerPanConfig burgerPanConfig, Func<Food,bool> onServeClickedCallback) {
+		_burgerCutletPlacer.Init(OnCutletPlaceClickedCallback);
+		
 		_onServeClicked = onServeClickedCallback;
 		_currentBurgerPanConfig = burgerPanConfig;
 		
@@ -128,10 +126,10 @@ public class BurgersPanHandler : MonoBehaviour {
 		_burgerCutletSpawnPlacesHandler.AddSpawnPoints(totalActivePlaces);
 	}
 
-	private void OnCutletPlaceClickedCallback(Food obj) {
+	private bool OnCutletPlaceClickedCallback(Food obj) {
 		if ( !_burgerCutletSpawnPlacesHandler.HasAnyFreeSpawnPoint ) {
 			Debug.Log("No places to place a Cutlet!");
-			return;
+			return false;
 		}
 
 		var spawnPoint = _burgerCutletSpawnPlacesHandler.GetSpawnPoint();
@@ -153,6 +151,8 @@ public class BurgersPanHandler : MonoBehaviour {
 		_foodViews.Add(foodViewModelHandler, go);
 
 		foodViewModelHandler.StartTimer();
+
+		return true;
 	}
 
 	#region BURGER_CUTLET_INTERACTION_CALLBACKS
@@ -168,7 +168,10 @@ public class BurgersPanHandler : MonoBehaviour {
 
 	private void ONServeClicked(FoodViewModelHandler obj) {
 		if ( obj.CurrentFood.CurStatus == Food.FoodStatus.Cooked ) {
-			_onServeClicked?.Invoke(obj.CurrentFood);
+		 var res=	_onServeClicked?.Invoke(obj.CurrentFood);
+		 if ( res.HasValue && res.Value) {
+			 RemoveView(obj);
+		 }
 		}
 	}
 
@@ -199,6 +202,13 @@ public class BurgersPanHandler : MonoBehaviour {
 	}
 
 	#endregion
+
+	private void RemoveView(FoodViewModelHandler foodViewModelHandler) {
+		var cookingView = _foodViews[foodViewModelHandler];
+		cookingView.DestroySelf();
+		foodViewModelHandler.StopTimer();
+		_foodViews.Remove(foodViewModelHandler);
+	}
 	
 }
 }
