@@ -57,7 +57,7 @@ public class ColaAssemblyHandler
 					ONOrderUpdatedCallback);
 			var go = Instantiate(_orderViewPrefab, spawnPoint);
 			go.Init(modelHandler, null, null);
-			go.Repaint(new BurgerOrderViewModel {FoodComponents = null});
+			go.Repaint(new OrderDataViewModel {FoodComponents = null});
 
 			_orderViews.Add(modelHandler, go);
 		}
@@ -65,7 +65,7 @@ public class ColaAssemblyHandler
 
 	private void ONOrderUpdatedCallback(OrderModelHandler obj) {
 		var view = _orderViews[obj];
-		view.Repaint(new BurgerOrderViewModel {
+		view.Repaint(new OrderDataViewModel {
 			FoodComponents = obj.CurOrder
 		});
 	}

@@ -1,9 +1,10 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using CookingPrototype.GameCore;
 
 namespace CookingPrototype.Kitchen {
-public sealed class OrderModel : IEquatable<OrderModel> {
+public sealed class OrderModel : IEquatable<OrderModel>, IPrototype<OrderModel> {
 	public class OrderFood {
 		public string Name { get; } = null;
 		public string Needs { get; } = null;
@@ -27,6 +28,12 @@ public sealed class OrderModel : IEquatable<OrderModel> {
 		_foods = foods;
 	}
 
+	public OrderModel Clone() {
+		var model = (OrderModel)MemberwiseClone();
+		model._foods = new List<OrderFood>(model._foods);
+		return model;
+	}
+	
 	public bool Equals(OrderModel other) {
 		if ( ReferenceEquals(null, other) ) {
 			return false;
@@ -38,6 +45,7 @@ public sealed class OrderModel : IEquatable<OrderModel> {
 
 		return Name == other.Name;
 	}
+	
 
 	public override bool Equals(object obj) {
 		return ReferenceEquals(this, obj)

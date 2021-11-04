@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using CookingPrototype.GameCore;
 using CookingPrototype.Kitchen.Controllers;
 using CookingPrototype.Kitchen.Handlers;
 using CookingPrototype.Kitchen.Views;
@@ -43,19 +44,19 @@ public class FoodController {
 			CookTime = 5,
 			OvercookTime = 0
 		};
-		
-		_orderGeneratorService.GenerateRandomOrder()
+
+		var allOrders = _orderGeneratorService.GetAllOrders();
 		
 		var data = new FoodData {
 			ColaAssemblyData = new ColaAssemblyData {
 				OrderAssemblyConfig = orderAssemblyConfig,
 				CookableFoodConfig = cookableFoodConfigCola,
-				PossibleOrders = 
+				PossibleOrders = allOrders.Clone()
 			},
 			BurgerData = new BurgerData {
 				OrderAssemblyConfig = orderAssemblyConfig,
 				CookableFoodConfig = cookableFoodConfigBurger,
-				PossibleOrders = 
+				PossibleOrders = allOrders.Clone()
 			}
 		};
 
@@ -65,15 +66,15 @@ public class FoodController {
 	}
 
 	private bool ONServeClickedCallback(List<string> arg) {
-		
-		return _customersControllerNew.ServeOrder();
+		var order = _orderGeneratorService.FindOrder(arg);
+		return order != null && _customersControllerNew.ServeOrder(order);
 	}
 
 	private void GameplayControllerNewOnSessionEnded() {
-		
+		HandleSessionEnd();
 	}
 
-	public void HandleSessionEnd() {
+	private void HandleSessionEnd() {
 		GameplayControllerNew.SessionEnded -= GameplayControllerNewOnSessionEnded;
 		// Free Resources
 		_foodViewPresenter.HandleSessionEnded();

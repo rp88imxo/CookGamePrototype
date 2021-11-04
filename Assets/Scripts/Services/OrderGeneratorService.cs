@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Xml;
+using CookingPrototype.GameCore;
 using CookingPrototype.Kitchen;
 using UnityEngine;
 
@@ -16,9 +17,9 @@ public class OrderGeneratorService {
 	}
 	
 	#region ORDER_SERVICE_API
-	public void Init(string orderConfigPath = "Configs/Orders") {
+	public void Initialize() {
 		_orders.Clear();
-		var ordersConfig = Resources.Load<TextAsset>(orderConfigPath);
+		var ordersConfig = Resources.Load<TextAsset>("Configs/Orders");
 		var ordersXml = new XmlDocument();
 		using ( var reader = new StringReader(ordersConfig.ToString()) ) {
 			ordersXml.Load(reader);
@@ -32,7 +33,7 @@ public class OrderGeneratorService {
 	}
 
 	public List<OrderModel> GetAllOrders() {
-		return _orders.
+		return _orders.Clone();
 	}
 	
 	public OrderModel GenerateRandomOrder() 

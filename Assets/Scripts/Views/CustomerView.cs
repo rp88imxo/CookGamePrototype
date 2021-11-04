@@ -47,9 +47,8 @@ public class CustomerViewModel {
 		}
 
 		private async UniTaskVoid CreateOrders(IEnumerable<string> ordersViewsNames) {
-			
 			foreach ( var order in ordersViewsNames ) {
-				var orderViewPrefab = await Resources.LoadAsync<GameObject>(order) as CustomerOrderView;
+				var orderViewPrefab = await Resources.LoadAsync<GameObject>($"Prefabs/Orders/{order}") as CustomerOrderView;
 				var go = Instantiate(orderViewPrefab, _ordersContainer);
 				_orders.Add(order,go);
 			}

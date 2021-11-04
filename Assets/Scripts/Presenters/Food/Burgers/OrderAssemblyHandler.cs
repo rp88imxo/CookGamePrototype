@@ -98,7 +98,7 @@ public class OrderAssemblyHandler : BaseOrderAssemblyHandler {
 					ONOrderUpdatedCallback);
 			var go = Instantiate(_orderViewPrefab, spawnPoint);
 			go.Init(modelHandler, ONServeClicked, ONTrashClicked);
-			go.Repaint(new BurgerOrderViewModel {FoodComponents = null});
+			go.Repaint(new OrderDataViewModel {FoodComponents = null});
 
 			_orderViews.Add(modelHandler, go);
 		}
@@ -106,7 +106,7 @@ public class OrderAssemblyHandler : BaseOrderAssemblyHandler {
 
 	private void ONOrderUpdatedCallback(OrderModelHandler obj) {
 		var view = _orderViews[obj];
-		view.Repaint(new BurgerOrderViewModel {
+		view.Repaint(new OrderDataViewModel {
 			FoodComponents = obj.CurOrder
 		});
 	}

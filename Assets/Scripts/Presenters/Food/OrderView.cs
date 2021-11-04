@@ -7,7 +7,7 @@ using UnityEngine;
 
 namespace CookingPrototype.Kitchen.Views {
 
-public class BurgerOrderViewModel {
+public class OrderDataViewModel {
 	public List<string> FoodComponents { get; set; }
 }
 
@@ -37,8 +37,8 @@ public class OrderView : MonoBehaviour {
 		}
 	}
 	
-	public void Repaint(BurgerOrderViewModel burgerOrderViewModel) {
-		_orderViewVisualizer.Repaint(burgerOrderViewModel.FoodComponents);
+	public void Repaint(OrderDataViewModel orderDataViewModel) {
+		_orderViewVisualizer.Repaint(orderDataViewModel.FoodComponents);
 	}
 	
 	public void DestroySelf() {
