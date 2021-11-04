@@ -1,38 +1,31 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using CookingPrototype.Kitchen.Views;
 using UnityEngine;
 
 namespace CookingPrototype.Kitchen.Handlers {
-public class BurgerData {
+
+public class ColaAssemblyData {
 	public OrderAssemblyConfig OrderAssemblyConfig { get; set; }
 	public CookableFoodConfig CookableFoodConfig { get; set; }
 	public List<OrderModel> PossibleOrders { get; set; }
 }
 
-public class BurgersHandler : MonoBehaviour {
+public class ColaHandler : MonoBehaviour {
 	[SerializeField]
 	private OrderAssemblyHandler _orderAssemblyHandler;
 
 	[SerializeField]
 	private CookableFoodHandler _cookableFoodHandler;
-
-	[SerializeField]
-	private List<FoodPlacerHandler> _foodPlacerHandlers;
 	
-	public void Init(BurgerData burgerData,
+	public void Init(ColaAssemblyData colaAssemblyData,
 		Action<List<string>> onServeClickedCallback) {
-		_orderAssemblyHandler.Init(burgerData.OrderAssemblyConfig,
-			burgerData.PossibleOrders,
+		_orderAssemblyHandler.Init(colaAssemblyData.OrderAssemblyConfig,
+			colaAssemblyData.PossibleOrders,
 			onServeClickedCallback);
 		
-		_cookableFoodHandler.Init(burgerData.CookableFoodConfig,
+		_cookableFoodHandler.Init(colaAssemblyData.CookableFoodConfig,
 			ONTryAddFoodComponentClickedCallback);
-
-		foreach ( var foodPlacer in _foodPlacerHandlers ) {
-			foodPlacer.Init(ONTryAddFoodComponentClickedCallback);
-		}
 	}
 
 	private bool ONTryAddFoodComponentClickedCallback(Food arg) {
@@ -40,3 +33,4 @@ public class BurgersHandler : MonoBehaviour {
 	}
 }
 }
+

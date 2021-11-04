@@ -6,12 +6,13 @@ using CookingPrototype.GameCore;
 using CookingPrototype.Kitchen.Views;
 using CookingPrototype.Utilities;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace CookingPrototype.Kitchen.Handlers {
-public class BurgerPanConfig {
+public class CookableFoodConfig {
 	public int TotalPlaces { get; set; }
-	public int BurgerCookTime { get; set; }
-	public int BurgerOvercookTime { get; set; }
+	public int CookTime { get; set; }
+	public int OvercookTime { get; set; }
 }
 
 public class FoodViewModelHandler {
@@ -93,59 +94,63 @@ public class FoodViewModelHandler {
 }
 
 public class CookableFoodHandler : MonoBehaviour {
+	[FormerlySerializedAs("_burgerCutletOnPanViewPrefab")]
 	[SerializeField]
-	private CookingFoodView _burgerCutletOnPanViewPrefab;
+	private CookingFoodView _cookingFoodViewPrefab;
 
+	[FormerlySerializedAs("_burgerCutletPlacer")]
 	[SerializeField]
-	private FoodPlacerHandler _burgerCutletPlacer;
+	private BaseFoodPlacerHandler _foodPlacerHandler;
 
+	[FormerlySerializedAs("_burgerPanPlaces")]
 	[SerializeField]
-	private List<Transform> _burgerPanPlaces;
+	private List<Transform> _foodPlaces;
 
+	[FormerlySerializedAs("_burgerCutletSpawnPlacesHandler")]
 	[SerializeField]
-	private SpawnPlacesHandler _burgerCutletSpawnPlacesHandler;
+	private SpawnPlacesHandler _spawnPlacesHandler;
 
-	private BurgerPanConfig _currentBurgerPanConfig;
+	private CookableFoodConfig _currentCookableFoodConfig;
 
 	private Dictionary<FoodViewModelHandler, CookingFoodView> _foodViews =
 		new Dictionary<FoodViewModelHandler, CookingFoodView>();
 
 	private Func<Food,bool> _onServeClicked;
 
-	public void Init(BurgerPanConfig burgerPanConfig, Func<Food,bool> onServeClickedCallback) {
-		_burgerCutletPlacer.Init(OnCutletPlaceClickedCallback);
+	public void Init(CookableFoodConfig cookableFoodConfig, Func<Food,bool> onServeClickedCallback) {
+		_foodPlacerHandler.Init(OnCutletPlaceClickedCallback);
 		
 		_onServeClicked = onServeClickedCallback;
-		_currentBurgerPanConfig = burgerPanConfig;
+		_currentCookableFoodConfig = cookableFoodConfig;
 		
-		_burgerPanPlaces.ForEach(x => x.gameObject.SetActive(false));
-		var totalActivePlaces = _burgerPanPlaces
-			.Take(burgerPanConfig.TotalPlaces)
+		_foodPlaces.ForEach(x => x.gameObject.SetActive(false));
+		var totalActivePlaces = _foodPlaces
+			.Take(cookableFoodConfig.TotalPlaces)
 			.ToList();
 		totalActivePlaces.ForEach(x => x.gameObject.SetActive(true));
-		_burgerCutletSpawnPlacesHandler.AddSpawnPoints(totalActivePlaces);
+		_spawnPlacesHandler.AddSpawnPoints(totalActivePlaces);
 	}
 
 	private bool OnCutletPlaceClickedCallback(Food obj) {
-		if ( !_burgerCutletSpawnPlacesHandler.HasAnyFreeSpawnPoint ) {
+		if ( !_spawnPlacesHandler.HasAnyFreeSpawnPoint ) {
 			Debug.Log("No places to place a Cutlet!");
 			return false;
 		}
 
-		var spawnPoint = _burgerCutletSpawnPlacesHandler.GetSpawnPoint();
+		var spawnPoint = _spawnPlacesHandler.GetSpawnPoint();
 
 		var foodViewModelHandler = new FoodViewModelHandler(obj,
-			_currentBurgerPanConfig.BurgerCookTime,
-			_currentBurgerPanConfig.BurgerOvercookTime,
+			_currentCookableFoodConfig.CookTime,
+			_currentCookableFoodConfig.OvercookTime,
 			ONFoodCooked,
 			ONTimerTicked,
 			ONFoodOvercooked);
 
-		var go = Instantiate(_burgerCutletOnPanViewPrefab, spawnPoint);
+		var go = Instantiate(_cookingFoodViewPrefab, spawnPoint);
 		go.Init(foodViewModelHandler, ONServeClicked, ONTrashClicked);
 		go.Repaint(new CookingFoodViewModel {
 			FoodViewState = obj.CurStatus,
-			CookTime = _currentBurgerPanConfig.BurgerCookTime
+			CookTime = _currentCookableFoodConfig.CookTime
 		});
 
 		_foodViews.Add(foodViewModelHandler, go);
@@ -183,7 +188,7 @@ public class CookableFoodHandler : MonoBehaviour {
 		var cookingFoodView = _foodViews[obj];
 		cookingFoodView.Repaint(new CookingFoodViewModel() {
 			FoodViewState = obj.CurrentFood.CurStatus,
-			CookTime = _currentBurgerPanConfig.BurgerOvercookTime
+			CookTime = _currentCookableFoodConfig.OvercookTime
 		});
 	}
 

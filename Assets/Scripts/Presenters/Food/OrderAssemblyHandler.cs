@@ -61,7 +61,7 @@ public class OrderModelHandler {
 	}
 }
 
-public class OrderAssemblyHandler : MonoBehaviour {
+public class OrderAssemblyHandler : BaseOrderAssemblyHandler {
 	[SerializeField]
 	private OrderView _orderViewPrefab;
 	
@@ -92,6 +92,8 @@ public class OrderAssemblyHandler : MonoBehaviour {
 			.ToList();
 		totalActivePlaces.ForEach(x => x.gameObject.SetActive(true));
 		_spawnPlacesHandler.AddSpawnPoints(totalActivePlaces);
+
+		CreateViews();
 	}
 
 	private void CreateViews() {
@@ -107,7 +109,10 @@ public class OrderAssemblyHandler : MonoBehaviour {
 	}
 
 	private void ONOrderUpdatedCallback(OrderModelHandler obj) {
-		
+		var view = _orderViews[obj];
+		view.Repaint(new BurgerOrderViewModel {
+			FoodComponents = obj.CurOrder
+		});
 	}
 
 	#region ORDER_VIEW_CALLBACKS
@@ -124,15 +129,8 @@ public class OrderAssemblyHandler : MonoBehaviour {
 	
 	#endregion
 	
-
-	public bool TryAddFoodComponent(Food food) {
-		foreach ( var orderModelHandler in _orderViews.Keys ) {
-			if ( orderModelHandler.TryPlaceFood(food) ) {
-				return true;
-			}
-		}
-		
-		return false;
+	public override bool TryAddFoodComponent(Food food) {
+		return _orderViews.Keys.Any(orderModelHandler => orderModelHandler.TryPlaceFood(food));
 	}
 	
 }

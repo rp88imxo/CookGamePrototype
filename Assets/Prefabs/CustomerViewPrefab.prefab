@@ -9,7 +9,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 491003773207209215}
-  - component: {fileID: 524705796942190555}
   - component: {fileID: 493849952245685934}
   m_Layer: 0
   m_Name: CustomerViewPrefab
@@ -34,29 +33,6 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &524705796942190555
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 493849952245685929}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 970e3bf1eb5a9ab40840695cf12f0fbe, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  CustomerImage: {fileID: 525164402575713029}
-  CustomerSprites:
-  - {fileID: 21300000, guid: 07239734bcc1fb840a871b345b7494a4, type: 3}
-  - {fileID: 21300000, guid: dfac47be9713a0a42a85f4d46e867755, type: 3}
-  - {fileID: 21300000, guid: 65aba6cfb2ca0744fbf7b6d324926d32, type: 3}
-  - {fileID: 21300000, guid: e90023c99e43d2f45b1e86af0a444830, type: 3}
-  TimerBar: {fileID: 524135217132124333}
-  OrderPlaces:
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
 --- !u!114 &493849952245685934
 MonoBehaviour:
   m_ObjectHideFlags: 0
