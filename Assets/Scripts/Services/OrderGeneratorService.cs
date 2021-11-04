@@ -10,11 +10,12 @@ namespace CookingPrototype.Services {
 public class OrderGeneratorService {
 
 	private readonly List<OrderModel> _orders;
-	
+
 	public OrderGeneratorService() {
 		_orders = new List<OrderModel>();
 	}
-
+	
+	#region ORDER_SERVICE_API
 	public void Init(string orderConfigPath = "Configs/Orders") {
 		_orders.Clear();
 		var ordersConfig = Resources.Load<TextAsset>(orderConfigPath);
@@ -29,9 +30,27 @@ public class OrderGeneratorService {
 			_orders.Add(order);
 		}
 	}
+
+	public List<OrderModel> GetAllOrders() {
+		return _orders.
+	}
 	
 	public OrderModel GenerateRandomOrder() 
 		=> _orders[Random.Range(0, _orders.Count)];
+	
+	public OrderModel FindOrder(List<string> foods) {
+		return _orders.Find(x => {
+			if ( x.Foods.Count != foods.Count ) {
+				return false;
+			}
+			return x.Foods.All(food
+				=> x.Foods.Count(f => f.Name == food.Name)
+				== foods.Count(f => f == food.Name));
+		});
+	}
+
+	#endregion
+	
 	
 	private OrderModel ParseOrder(XmlNode node) {
 		var foods =
@@ -41,6 +60,8 @@ public class OrderGeneratorService {
 			.ToList();
 		return new OrderModel(node.SelectSingleNode("@name").Value, foods);
 	}
+	
+	
 }
 }
 

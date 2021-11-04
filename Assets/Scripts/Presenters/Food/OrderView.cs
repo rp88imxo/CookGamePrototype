@@ -32,7 +32,9 @@ public class OrderView : MonoBehaviour {
 		_onTrashClicked = onTrashClicked;
 		
 		_oneTapHandler.Init(TapCallback);
-		_doubleTapHandler.Init(DoubleTapCallback);
+		if ( _doubleTapHandler != null ) {
+			_doubleTapHandler.Init(DoubleTapCallback);
+		}
 	}
 	
 	public void Repaint(BurgerOrderViewModel burgerOrderViewModel) {

@@ -7,6 +7,11 @@ namespace CookingPrototype.Kitchen.Views {
 		[SerializeField]
 		private CustomersViewPresenter _customersViewPresenter;
 
+		[SerializeField]
+		private FoodViewPresenter _foodViewPresenter;
+
+		public FoodViewPresenter FoodViewPresenter => _foodViewPresenter;
+
 		public CustomersViewPresenter CustomersViewPresenter => _customersViewPresenter;
 	}
 }

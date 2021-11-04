@@ -1,42 +1,38 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using CookingPrototype.Kitchen.Views;
 using UnityEngine;
 
 namespace CookingPrototype.Kitchen.Handlers {
-public class BurgerData {
+
+public class FoodServeAssemblyData {
 	public OrderAssemblyConfig OrderAssemblyConfig { get; set; }
 	public CookableFoodConfig CookableFoodConfig { get; set; }
 	public List<OrderModel> PossibleOrders { get; set; }
 }
 
-public class BurgersHandler : MonoBehaviour {
-	[SerializeField]
-	private OrderAssemblyHandler _orderAssemblyHandler;
 
+public abstract class FoodServeHandler<T> : MonoBehaviour where T:FoodServeAssemblyData  {
 	[SerializeField]
-	private CookableFoodHandler _cookableFoodHandler;
+	private BaseOrderAssemblyHandler _orderAssemblyHandler;
 
 	[SerializeField]
 	private List<FoodPlacerHandler> _foodPlacerHandlers;
 	
-	public void Init(BurgerData burgerData,
-		Action<List<string>> onServeClickedCallback) {
-		_orderAssemblyHandler.Init(burgerData.OrderAssemblyConfig,
-			burgerData.PossibleOrders,
+	public virtual void InitGameSession(T foodServeAssemblyData,
+		Func<List<string>, bool> onServeClickedCallback) {
+		_orderAssemblyHandler.Init(foodServeAssemblyData.OrderAssemblyConfig,
+			foodServeAssemblyData.PossibleOrders,
 			onServeClickedCallback);
 		
-		_cookableFoodHandler.Init(burgerData.CookableFoodConfig,
-			ONTryAddFoodComponentClickedCallback);
-
 		foreach ( var foodPlacer in _foodPlacerHandlers ) {
 			foodPlacer.Init(ONTryAddFoodComponentClickedCallback);
 		}
 	}
 
-	private bool ONTryAddFoodComponentClickedCallback(Food arg) {
+	protected virtual bool ONTryAddFoodComponentClickedCallback(Food arg) {
 		return _orderAssemblyHandler.TryAddFoodComponent(arg);
 	}
 }
 }
+

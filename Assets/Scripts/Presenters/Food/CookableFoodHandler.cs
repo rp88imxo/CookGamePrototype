@@ -214,6 +214,11 @@ public class CookableFoodHandler : MonoBehaviour {
 		foodViewModelHandler.StopTimer();
 		_foodViews.Remove(foodViewModelHandler);
 	}
-	
+
+	public void HandleSessionEnded() {
+		foreach ( var food in _foodViews.Keys ) {
+			RemoveView(food);
+		}
+	}
 }
 }
