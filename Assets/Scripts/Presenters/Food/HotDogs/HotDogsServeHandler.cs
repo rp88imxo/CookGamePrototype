@@ -1,22 +1,25 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using CookingPrototype.Kitchen.Views;
 using UnityEngine;
 
 namespace CookingPrototype.Kitchen.Handlers {
-public class BurgerData : FoodServeAssemblyData {
+
+public class HotDogsData : FoodServeAssemblyData {
 }
 
-public class BurgersServeHandler : FoodServeHandler<BurgerData> {
+public class HotDogsServeHandler : FoodServeHandler<HotDogsData> {
 	[SerializeField]
 	private CookableFoodHandler _cookableFoodHandler;
 
-	public override void InitGameSession(BurgerData foodServeAssemblyData,
+	public override void InitGameSession(
+		HotDogsData foodServeAssemblyData,
 		Func<List<string>, bool> onServeClickedCallback) {
-		base.InitGameSession(foodServeAssemblyData, onServeClickedCallback);
-		
-		_cookableFoodHandler.Init(foodServeAssemblyData.CookableFoodConfig,
+		base.InitGameSession(foodServeAssemblyData,
+			onServeClickedCallback);
+
+		_cookableFoodHandler.Init(
+			foodServeAssemblyData.CookableFoodConfig,
 			ONTryAddFoodComponentClickedCallback);
 	}
 

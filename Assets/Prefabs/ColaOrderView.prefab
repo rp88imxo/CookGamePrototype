@@ -10,7 +10,6 @@ GameObject:
   m_Component:
   - component: {fileID: 2439343789189013494}
   - component: {fileID: 7596304635549285944}
-  - component: {fileID: 443582551201133347}
   - component: {fileID: 7936027109778435063}
   m_Layer: 0
   m_Name: ColaOrderView
@@ -52,22 +51,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _orderViewVisualizer: {fileID: 7936027109778435063}
-  _oneTapHandler: {fileID: 443582551201133347}
+  _oneTapHandler: {fileID: 0}
   _doubleTapHandler: {fileID: 0}
---- !u!114 &443582551201133347
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2439343789189013495}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5930218407adb9347a93421c14d458bd, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _neededPointerTaps: 1
-  _timeBetweenTaps: 0
 --- !u!114 &7936027109778435063
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -94,7 +79,6 @@ GameObject:
   - component: {fileID: 5093118492724843868}
   - component: {fileID: 2992161251221260106}
   - component: {fileID: 4324280350404583544}
-  - component: {fileID: 5213691647523049400}
   m_Layer: 0
   m_Name: ColaCooked
   m_TagString: Untagged
@@ -156,17 +140,3 @@ MonoBehaviour:
   m_FillClockwise: 1
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
---- !u!114 &5213691647523049400
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6279249367953313073}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ac89d1488b7208d43b0e1553711b384a, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  Name: Cola
-  AuxObjects: []

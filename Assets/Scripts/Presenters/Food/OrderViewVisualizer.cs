@@ -14,6 +14,15 @@ public class OrderComponentsVisualizer{
 	[SerializeField]
 	private GameObject _foodSprite;
 
+	[SerializeField]
+	private List<GameObject> _extraObjects;
+
+	public void SetActive(bool isActive) {
+		_foodSprite.SetActive(isActive);
+		_extraObjects.ForEach(x=> x.SetActive(isActive));
+	}
+	
+	public List<GameObject> ExtraObjects => _extraObjects;
 	public string FoodComponentName => _foodComponentName;
 	public GameObject FoodSprite => _foodSprite;
 }
@@ -25,10 +34,16 @@ public class OrderViewVisualizer : MonoBehaviour
 	
 	public void Repaint(List<string> foodComponents) {
 		if ( foodComponents == null ) {
+			_foodStatusVisualizers.ForEach(x
+				=> 
+			{
+				x.SetActive(false);
+			});
 			return;
 		}
+		
 		_foodStatusVisualizers.ForEach(x => 
-			x.FoodSprite.SetActive(foodComponents.Contains(x.FoodComponentName)));
+			x.SetActive(foodComponents.Contains(x.FoodComponentName)));
 	}
 }
 }

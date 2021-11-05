@@ -13,6 +13,8 @@ GameObject:
   - component: {fileID: 4399732693195618203}
   - component: {fileID: 2152240210313631760}
   - component: {fileID: 6128124708178751311}
+  - component: {fileID: 1542779245494024376}
+  - component: {fileID: 2479429037928243616}
   m_Layer: 0
   m_Name: BurgerOrderView
   m_TagString: Untagged
@@ -86,7 +88,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _neededPointerTaps: 2
-  _timeBetweenTaps: 0.1
+  _timeBetweenTaps: 0.5
 --- !u!114 &6128124708178751311
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -102,14 +104,57 @@ MonoBehaviour:
   _foodStatusVisualizers:
   - _foodComponentName: BurgerBun
     _foodSprite: {fileID: 1941997194637349216}
+    _extraObjects:
+    - {fileID: 1941997194452436563}
   - _foodComponentName: BurgerCutlet
     _foodSprite: {fileID: 1941997195156184855}
+    _extraObjects: []
   - _foodComponentName: BurgerCheese
     _foodSprite: {fileID: 1941997194716386593}
+    _extraObjects: []
   - _foodComponentName: BurgerTomato
     _foodSprite: {fileID: 1941997195308251823}
-  - _foodComponentName: BurgerBunTop
-    _foodSprite: {fileID: 1941997194452436563}
+    _extraObjects: []
+--- !u!61 &1542779245494024376
+BoxCollider2D:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1941997194212399951}
+  m_Enabled: 1
+  m_Density: 1
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_UsedByEffector: 0
+  m_UsedByComposite: 0
+  m_Offset: {x: 0, y: 0}
+  m_SpriteTilingProperty:
+    border: {x: 0, y: 0, z: 0, w: 0}
+    pivot: {x: 0, y: 0}
+    oldSize: {x: 0, y: 0}
+    newSize: {x: 0, y: 0}
+    adaptiveTilingThreshold: 0
+    drawMode: 0
+    adaptiveTiling: 0
+  m_AutoTiling: 0
+  serializedVersion: 2
+  m_Size: {x: 100, y: 100}
+  m_EdgeRadius: 0
+--- !u!114 &2479429037928243616
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1941997194212399951}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: -1862395651, guid: f70555f144d8491a825f0804e09c671c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Delegates: []
+  delegates: []
 --- !u!1 &1941997194452436563
 GameObject:
   m_ObjectHideFlags: 0

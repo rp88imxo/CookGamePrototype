@@ -50,7 +50,7 @@ public class CookingTimerView : MonoBehaviour {
 	}
 
 	public void Repaint(float leftTime) {
-		_currentTimer.TimerImage.fillAmount = leftTime / _initialTime;
+		_currentTimer.TimerImage.fillAmount = 1f - leftTime / _initialTime;
 	}
 
 	public void ToggleTimer(bool state) {

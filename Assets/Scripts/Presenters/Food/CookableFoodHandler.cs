@@ -15,6 +15,8 @@ public class CookableFoodConfig {
 	public int OvercookTime { get; set; }
 }
 
+
+
 public class FoodViewModelHandler {
 	public Food CurrentFood { get; }
 	private Timer Timer { get; set; }
@@ -45,11 +47,13 @@ public class FoodViewModelHandler {
 		CookTime = cookTime;
 		OvercookTime = overcookTime;
 
+		var tickInterval = (1 / 60f).ToTimeSpanSeconds();
 		Timer = new Timer(CookTime.ToTimeSpanSeconds(),
-				(1 / 60f).ToTimeSpanSeconds())
+				tickInterval)
 			.OnTick(OnTimerTicked)
 			.OnCompleted(OnTimerCompleted)
-			.SetTickCallbackOnStarted();
+			.SetTickCallbackOnStarted()
+			.SetTickInterval(tickInterval);
 	}
 
 	#region TIMER_CALLBACKS_WRAPPERS
@@ -60,8 +64,10 @@ public class FoodViewModelHandler {
 		switch ( CurrentFood.CurStatus ) {
 			case Food.FoodStatus.Cooked:
 				_onFoodCooked?.Invoke(this);
-				Timer.Reset();
-				Timer.Start();
+				if ( Timer != null ) {
+					Timer.Reset();
+					Timer.Start();
+				}
 				break;
 			case Food.FoodStatus.Overcooked:
 				_onFoodOvercooked?.Invoke(this);
@@ -109,16 +115,19 @@ public class CookableFoodHandler : MonoBehaviour {
 	[FormerlySerializedAs("_burgerCutletSpawnPlacesHandler")]
 	[SerializeField]
 	private SpawnPlacesHandler _spawnPlacesHandler;
-
+	
+	
 	private CookableFoodConfig _currentCookableFoodConfig;
 
 	private Dictionary<FoodViewModelHandler, CookingFoodView> _foodViews =
 		new Dictionary<FoodViewModelHandler, CookingFoodView>();
 
 	private Func<Food,bool> _onServeClicked;
+	public bool HasFreePlaces => _spawnPlacesHandler.HasAnyFreeSpawnPoint;
 
 	public void Init(CookableFoodConfig cookableFoodConfig, Func<Food,bool> onServeClickedCallback) {
-		_foodPlacerHandler.Init(OnCutletPlaceClickedCallback);
+		_foodPlacerHandler.Init();
+		_foodPlacerHandler.OnFoodPlaced += OnCutletPlaceClickedCallback;
 		
 		_onServeClicked = onServeClickedCallback;
 		_currentCookableFoodConfig = cookableFoodConfig;
@@ -153,6 +162,7 @@ public class CookableFoodHandler : MonoBehaviour {
 			CookTime = _currentCookableFoodConfig.CookTime
 		});
 
+	
 		_foodViews.Add(foodViewModelHandler, go);
 
 		foodViewModelHandler.StartTimer();
@@ -172,11 +182,14 @@ public class CookableFoodHandler : MonoBehaviour {
 	}
 
 	private void ONServeClicked(FoodViewModelHandler obj) {
-		if ( obj.CurrentFood.CurStatus == Food.FoodStatus.Cooked ) {
-		 var res=	_onServeClicked?.Invoke(obj.CurrentFood);
-		 if ( res.HasValue && res.Value) {
-			 RemoveView(obj);
-		 }
+		if ( obj.CurrentFood.CurStatus != Food.FoodStatus.Cooked ) {
+			return;
+		}
+
+		var res=	_onServeClicked?.Invoke(obj.CurrentFood);
+		if ( res.HasValue && res.Value) 
+		{
+			RemoveView(obj);
 		}
 	}
 
@@ -216,9 +229,15 @@ public class CookableFoodHandler : MonoBehaviour {
 	}
 
 	public void HandleSessionEnded() {
+		_foodPlacerHandler.OnFoodPlaced -= OnCutletPlaceClickedCallback;
+		
 		foreach ( var food in _foodViews.Keys ) {
-			RemoveView(food);
+			var cookingView = _foodViews[food];
+			cookingView.DestroySelf();
+			food.StopTimer();
 		}
+		
+		_foodViews.Clear();
 	}
 }
 }

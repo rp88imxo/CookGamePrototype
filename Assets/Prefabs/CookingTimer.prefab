@@ -9,7 +9,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2458193236834478040}
-  - component: {fileID: 2347744163371827132}
   - component: {fileID: 7809373385219621639}
   m_Layer: 0
   m_Name: CookingTimer
@@ -39,27 +38,6 @@ RectTransform:
   m_AnchoredPosition: {x: 58, y: 66}
   m_SizeDelta: {x: 100, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!114 &2347744163371827132
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2379685864877164556}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 69a0c9b3f57cc854c9ad498303c48ba8, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  Place: {fileID: 0}
-  Background: {fileID: 2347870658446057586}
-  Foreground: {fileID: 2348054728199688496}
-  Normal:
-    Background: {fileID: 21300000, guid: ab5578acfac947e4ea8366380f72cd4a, type: 3}
-    Foreground: {fileID: 21300000, guid: 6443f46d32aff934bbefbab0d0d3d445, type: 3}
-  Overcook:
-    Background: {fileID: 21300000, guid: d4f0b596a89c2a6458fec94230bc4c6e, type: 3}
-    Foreground: {fileID: 21300000, guid: 083f7d293433a3549b2f58882f6836ae, type: 3}
 --- !u!114 &7809373385219621639
 MonoBehaviour:
   m_ObjectHideFlags: 0

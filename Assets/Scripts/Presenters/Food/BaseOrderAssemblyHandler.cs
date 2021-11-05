@@ -9,7 +9,8 @@ public abstract class BaseOrderAssemblyHandler : MonoBehaviour {
 	protected OrderAssemblyConfig _currentOrderAssemblyConfig;
 	protected List<OrderModel> DefaultPossibleOrders;
 	protected Func<List<string>, bool> _onServeClicked;
-	
+	public abstract event Action OrderServed;
+
 	public abstract bool TryAddFoodComponent(Food food);
 	
 	public virtual void Init(OrderAssemblyConfig orderAssemblyConfig,
@@ -19,5 +20,7 @@ public abstract class BaseOrderAssemblyHandler : MonoBehaviour {
 		_onServeClicked = onServeClickedCallback;
 		_currentOrderAssemblyConfig = orderAssemblyConfig;
 	}
+
+	public abstract void HandleSessionEnded();
 }
 }

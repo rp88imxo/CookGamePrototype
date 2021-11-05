@@ -8,6 +8,7 @@ using CookingPrototype.Kitchen.Views;
 using CookingPrototype.Models;
 using CookingPrototype.Services;
 using CookingPrototype.Utilities;
+using Cysharp.Threading.Tasks;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
@@ -17,8 +18,13 @@ public class CustomersConfig {
 	public float CustomerWaitTime { get; set; } = 18f;
 	public float CustomerSpawnTime { get; set; } = 3f;
 	public int MaxOrdersCount { get; set; } = 3;
-	public List<OrderModel> LevelOrders { get; set; }
-	public int NeededFoodsInOrderToBeServed => LevelOrders?.Count ?? -1;
+	public float AddedTimeOnServedOrder { get; set; } = 6f;
+	public List<List<OrderModel>> LevelOrders { get; set; }
+	public int NeededFoodsInOrderToBeServed => LevelOrders
+		.SelectMany(x => x)
+		.Count() - 2;
+
+	
 }
 
 public class QueueCustomer {
@@ -28,6 +34,7 @@ public class QueueCustomer {
 	public float TimeLeft => WaitTimer != null
 		? (float)WaitTimer.TimeLeft.TotalSeconds
 		: 0f;
+
 
 	public bool HasAnyOrders => Customer.Orders.Count > 0;
 
@@ -46,16 +53,17 @@ public class QueueCustomer {
 		_onTimerCompleted = onTimerCompleted;
 
 		Customer = customer;
-
-		WaitTimer = new Timer(initialTime, (1 / 60f).ToTimeSpanSeconds())
+		var tickInterval = (1 / 60f).ToTimeSpanSeconds();
+		WaitTimer = new Timer(initialTime, tickInterval)
 			.OnStarted(OnTimerStarted)
 			.OnTick(OnTimerTicked)
 			.OnCompleted(OnTimerCompleted)
-			.SetTickCallbackOnStarted();
+			.SetTickCallbackOnStarted()
+			.SetTickInterval(tickInterval);
 	}
 
 	#region TIMER_CALLBACKS_WRAPPERS
-	
+
 	private void OnTimerCompleted() {
 		_onTimerCompleted?.Invoke(Customer);
 	}
@@ -73,7 +81,7 @@ public class QueueCustomer {
 	public void StartTimer() {
 		WaitTimer?.Start();
 	}
-	
+
 	public void StopTimer() {
 		WaitTimer?.Stop();
 		WaitTimer = null;
@@ -85,6 +93,13 @@ public class QueueCustomer {
 
 	public void ResumeTimer() {
 		WaitTimer?.Resume();
+	}
+
+	public void AddTime(float f) {
+		WaitTimer.TimeLeft = Mathf
+			.Min((float)WaitTimer.TimeLeft.TotalSeconds + f,
+				(float)WaitTimer.InitialTime.TotalSeconds)
+			.ToTimeSpanSeconds();
 	}
 }
 
@@ -106,9 +121,19 @@ public class CustomersControllerNew {
 	public const int TOTAL_CUSTOMERS_ICONS = 4;
 
 	/// <summary>
+	/// Customer generated
+	/// </summary>
+	public static event Action CustomerGenerated;
+	
+	/// <summary>
 	/// Customer fully served
 	/// </summary>
-	public static event Action<int,int> CustomerServed;
+	public static event Action CustomerServed;
+
+	/// <summary>
+	/// Customer left from the queue
+	/// </summary>
+	public static event Action CustomerLeft;
 
 	/// <summary>
 	/// Served some order(part of the full order) of customer
@@ -121,10 +146,13 @@ public class CustomersControllerNew {
 	public static event Action<bool> CustomerTaskCompleted;
 
 	public int TotalServedOrders
-		=> _sessionModel?.TotalServedFoodsInOrder ?? 0;
-
-	public int TotalTargetOrders => _currentCustomersConfig?.NeededFoodsInOrderToBeServed ?? 0;
-
+		=> _sessionModel.TotalServedFoodsInOrder;
+	public int TotalTargetOrders
+		=> _currentCustomersConfig.NeededFoodsInOrderToBeServed;
+	public int CustomersLeft
+		=> _currentCustomersConfig.TotalCustomersNumber
+			- _sessionModel.TotalGeneratedCustomers;
+	
 	// Should be injected via DI
 	private readonly GameplayMainScreenView _gameplayMainScreenView;
 	private readonly CustomersViewPresenter _customersViewPresenter;
@@ -151,11 +179,14 @@ public class CustomersControllerNew {
 
 		_sessionModel = new CustomersOrdersSessionModelData();
 	}
-	
+
 
 	public void InitGameSession(CustomersConfig config) {
 		GameplayControllerNew.SessionEnded += HandleSessionEnded;
-
+		CustomerOrderServed += OnCustomerOrderServed;
+		CustomerServed += OnCustomerUpdated;
+		CustomerLeft += OnCustomerUpdated;
+		
 		_sessionModel.Reset();
 
 		_currentCustomersConfig = config;
@@ -169,23 +200,48 @@ public class CustomersControllerNew {
 			.OnCompleted(TryGenerateCustomer)
 			.Start();
 	}
+	
 
 	private void HandleSessionEnded() {
 		GameplayControllerNew.SessionEnded -= HandleSessionEnded;
+		foreach ( var customer in _queueCustomers.Values ) {
+			customer.StopTimer();
+		}
+
+		_queueCustomers.Clear();
+		_customersViewPresenter.HandleSessionEnd();
+		_customersTimerGenerator.Stop();
+	}
+
+	#region EVENTS_CALLBACKS
+
+	private void OnCustomerUpdated() {
+		if ( IsCustomerTaskCompleted() ) {
+			CustomerTaskCompleted?.Invoke(CheckTaskCompletion());
+		}
+	}
+
+	private void OnCustomerOrderServed(OrderModel obj) {
+		if ( _sessionModel.TotalServedFoodsInOrder
+			== _currentCustomersConfig
+				.NeededFoodsInOrderToBeServed ) {
+			CustomerTaskCompleted?.Invoke(true);
+		}
+	}
+	
+	#endregion
+
+	private bool IsCustomerTaskCompleted() {
+		return _sessionModel
+				.TotalGeneratedCustomers
+			== _currentCustomersConfig.TotalCustomersNumber
+			&& _queueCustomers.Count == 0;
 	}
 	
 	private void TryGenerateCustomer() {
 		_customersTimerGenerator.Reset();
 
-		if ( _customersViewPresenter.HasFreeSpawnPoint ) {
-			if ( !(_sessionModel
-					.TotalGeneratedCustomers
-				< _currentCustomersConfig.TotalCustomersNumber) ) {
-				CustomerTaskCompleted?.Invoke(
-					CheckTaskCompletion(_sessionModel));
-				return;
-			}
-
+		if ( _customersViewPresenter.HasFreeSpawnPoint && CanGenerateCustomer()) {
 			var customerModel = GenerateCustomer();
 
 			var queueCustomer = new QueueCustomer(customerModel,
@@ -195,35 +251,40 @@ public class CustomersControllerNew {
 				ONTimerTicked,
 				ONTimerCompleted);
 
+
 			_customersViewPresenter.AddCustomerView(
 				new CustomerViewModel {
 					Id = customerModel.Id,
 					CustomerIconName = customerModel.IconPath,
 					OrderInitialTime =
 						_currentCustomersConfig.CustomerWaitTime,
-					OrdersViewsNames = _orderGeneratorService
-						.GenerateRandomOrder()
-						.Foods.Select(x => $"{x.Name}")
+					OrdersViewsNames = customerModel.Orders
+						.Select(x => x.Name)
 						.ToList()
 				});
 
 			_sessionModel
 				.TotalGeneratedCustomers++;
 			_queueCustomers.Add(customerModel.Id, queueCustomer);
-			
+
 			queueCustomer.StartTimer();
+			
+			CustomerGenerated?.Invoke();
 		}
 
 		_customersTimerGenerator.Start();
 	}
 
-	private bool CheckTaskCompletion(
-		CustomersOrdersSessionModelData modelData) {
+	private bool CanGenerateCustomer() {
+		return _sessionModel.TotalGeneratedCustomers
+			< _currentCustomersConfig.TotalCustomersNumber;
+	}
+	
+	private bool CheckTaskCompletion() {
 		return _sessionModel
 				.TotalServedFoodsInOrder
 			>= _currentCustomersConfig
-				.NeededFoodsInOrderToBeServed
-			- 2;
+				.NeededFoodsInOrderToBeServed;
 	}
 
 	#region QUEUE_CUSTOMERS_TIMER_CALLBACKS
@@ -231,6 +292,7 @@ public class CustomersControllerNew {
 	private void ONTimerCompleted(CustomerModel obj) {
 		_queueCustomers.Remove(obj.Id);
 		_customersViewPresenter.RemoveCustomerViewModelById(obj.Id);
+		CustomerLeft?.Invoke();
 	}
 
 	private void ONTimerTicked(CustomerModel arg1, TimeSpan arg2) {
@@ -263,19 +325,23 @@ public class CustomersControllerNew {
 		_customersViewPresenter.ServeOrderByName(
 			queueCustomer.Customer.Id,
 			orderModel.Name);
-
+		
 		queueCustomer.Customer.Orders.Remove(orderModel);
 		_sessionModel.TotalServedFoodsInOrder++;
 		CustomerOrderServed?.Invoke(orderModel);
 
 		if ( !queueCustomer.HasAnyOrders ) {
+			queueCustomer.StopTimer();
 			_queueCustomers.Remove(queueCustomer.Customer.Id);
 			_customersViewPresenter.RemoveCustomerViewModelById(
 				queueCustomer.Customer.Id);
-			
+
 			_sessionModel.TotalServedCustomers++;
-			
-			CustomerServed?.Invoke(_sessionModel.TotalServedCustomers, _currentCustomersConfig.TotalCustomersNumber);
+
+			CustomerServed?.Invoke();
+		}
+		else {
+			queueCustomer.AddTime(_currentCustomersConfig.AddedTimeOnServedOrder);
 		}
 
 		return true;
@@ -290,17 +356,17 @@ public class CustomersControllerNew {
 			Id = _sessionModel
 				.LastCustomerId++,
 			IconPath =
-				$"Images/Customers/char_{Random.Range(0, TOTAL_CUSTOMERS_ICONS + 1)}",
-			Orders = Enumerable
-				.Range(0,
-					Random.Range(1,
-						_currentCustomersConfig.MaxOrdersCount + 1))
-				.Select(x
-					=> _orderGeneratorService.GenerateRandomOrder())
-				.ToList()
+				$"Images/Customers/char_{Random.Range(1, TOTAL_CUSTOMERS_ICONS + 1)}",
+			Orders = GetOrders(_currentCustomersConfig.LevelOrders)
 		};
 
 		return customer;
 	}
+
+	private List<OrderModel>
+		GetOrders(List<List<OrderModel>> levelOrders) {
+		return levelOrders[_sessionModel.TotalGeneratedCustomers].Clone();
+	}
+	
 }
 }

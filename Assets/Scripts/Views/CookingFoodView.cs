@@ -30,21 +30,22 @@ public class CookingFoodView : MonoBehaviour {
 
 	private Action<FoodViewModelHandler> _onServeClicked;
 	private Action<FoodViewModelHandler> _onTrashClicked;
-	
-	public void Init(FoodViewModelHandler foodViewModelHandler, Action<FoodViewModelHandler> onServeClicked, Action<FoodViewModelHandler> onTrashClicked) {
+
+	public void Init(FoodViewModelHandler foodViewModelHandler,
+		Action<FoodViewModelHandler> onServeClicked,
+		Action<FoodViewModelHandler> onTrashClicked) {
 		_onServeClicked = onServeClicked;
 		_onTrashClicked = onTrashClicked;
-		
+
 		_oneTapHandler.Init(TapCallback);
 		_doubleTapHandler.Init(DoubleTapCallback);
 		_associatedFoodViewModelHandler = foodViewModelHandler;
 	}
 
 	public void DestroySelf() {
-		// here we can add some animations...
-		Destroy(gameObject);
+		DestroyImmediate(gameObject);
 	}
-	
+
 	#region TAP_CALLBACKS
 
 	private void DoubleTapCallback() {
@@ -56,28 +57,31 @@ public class CookingFoodView : MonoBehaviour {
 	}
 
 	#endregion
-	
+
 	public void Repaint(CookingFoodViewModel cookingFoodViewModel) {
 		_foodView.Repaint(cookingFoodViewModel.FoodViewState);
 		InitTimer(cookingFoodViewModel.CookTime,
 			cookingFoodViewModel.FoodViewState);
 	}
-	
+
+	public void Toogle(bool b) {
+		gameObject.SetActive(b);
+	}
+
 	#region TIMER
 
 	public void ToogleTimer(bool state) {
-		_cookingTimerView.ToggleTimer(state);	
+		_cookingTimerView.ToggleTimer(state);
 	}
+
 	public void InitTimer(float initialTime, Food.FoodStatus foodStatus) {
 		_cookingTimerView.Init(initialTime, foodStatus);
 	}
-	
+
 	public void RepaintTimer(float timeLeft) {
 		_cookingTimerView.Repaint(timeLeft);
 	}
 
 	#endregion
-
-	
 }
 }

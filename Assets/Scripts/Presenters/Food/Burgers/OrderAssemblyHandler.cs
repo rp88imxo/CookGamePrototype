@@ -25,8 +25,14 @@ public class OrderModelHandler {
 		_onOrderUpdated = onOrderUpdatedCallback;
 	}
 
+	public void Reset(IEnumerable<OrderModel> possibleOrders) {
+		_possibleOrders.Clear();
+		_possibleOrders.AddRange(possibleOrders);
+		_curOrder.Clear();
+	}
+
 	private bool CanAddFood(Food food) {
-		if ( _curOrder.Contains(food.Name) ) {
+		if ( _curOrder.Contains(food.Name) || food.CurStatus != Food.FoodStatus.Cooked) {
 			return false;
 		}
 
@@ -69,6 +75,8 @@ public class OrderAssemblyHandler : BaseOrderAssemblyHandler {
 	[SerializeField]
 	private SpawnPlacesHandler _spawnPlacesHandler;
 
+	public override event Action OrderServed;
+	
 	private readonly Dictionary<OrderModelHandler, OrderView> _orderViews
 		=
 		new Dictionary<OrderModelHandler, OrderView>();
@@ -89,7 +97,7 @@ public class OrderAssemblyHandler : BaseOrderAssemblyHandler {
 
 		CreateViews();
 	}
-
+	
 	private void CreateViews() {
 		foreach ( var spawnPoint in _spawnPlacesHandler
 			.GetAllFreeSpawnPoints() ) {
@@ -121,6 +129,7 @@ public class OrderAssemblyHandler : BaseOrderAssemblyHandler {
 	var res= _onServeClicked?.Invoke(orderModelHandler.CurOrder);
 	if ( res.HasValue && res.Value ) {
 		RemoveView(orderModelHandler);
+		OrderServed?.Invoke();
 	}
 	}
 
@@ -128,13 +137,25 @@ public class OrderAssemblyHandler : BaseOrderAssemblyHandler {
 
 	private void RemoveView(OrderModelHandler orderModelHandler) {
 		var orderView = _orderViews[orderModelHandler];
-		orderView.DestroySelf();
-		_orderViews.Remove(orderModelHandler);
+		orderView.Repaint(new OrderDataViewModel {FoodComponents = null});
+		orderModelHandler.Reset(DefaultPossibleOrders);
 	}
 	
 	public override bool TryAddFoodComponent(Food food) {
+		
 		return _orderViews.Keys.Any(orderModelHandler
 			=> orderModelHandler.TryPlaceFood(food));
 	}
+
+	public override void HandleSessionEnded() {
+		foreach (var keyValuePair in _orderViews)
+		{
+			Destroy(keyValuePair.Value.gameObject);
+		}
+
+		_spawnPlacesHandler.RemoveAllPoints();
+		_orderViews.Clear();
+	}
+
 }
 }

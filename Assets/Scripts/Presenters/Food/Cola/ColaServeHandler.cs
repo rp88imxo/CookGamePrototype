@@ -8,19 +8,20 @@ public class ColaAssemblyData : FoodServeAssemblyData { }
 
 public class ColaServeHandler : FoodServeHandler<ColaAssemblyData> {
 	[SerializeField]
-	private CookableFoodHandler _cookableFoodHandler;
+	private ColaFoodHandler _colaFoodHandler;
 
 	public override void InitGameSession(ColaAssemblyData foodServeAssemblyData,
 		Func<List<string>, bool> onServeClickedCallback) {
 		base.InitGameSession(foodServeAssemblyData, onServeClickedCallback);
 
-		_cookableFoodHandler.Init(
+		_colaFoodHandler.Init(
 			foodServeAssemblyData.CookableFoodConfig,
-			ONTryAddFoodComponentClickedCallback);
+			ONTryAddFoodComponentClickedCallback,_orderAssemblyHandler);
 	}
 
-	public void HandleSessionEnded() {
-		_cookableFoodHandler.HandleSessionEnded();
+	public override void HandleSessionEnded() {
+		base.HandleSessionEnded();
+		_colaFoodHandler.HandleSessionEnded();
 	}
 }
 }

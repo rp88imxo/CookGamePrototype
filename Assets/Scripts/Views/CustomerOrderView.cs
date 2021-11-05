@@ -8,6 +8,12 @@ namespace CookingPrototype.Kitchen.Views {
 		[SerializeField] 
 		private GameObject _root;
 		
+		public string OrderName { get; private set; }
+
+		public void Init(string orderName) {
+			OrderName = orderName;
+		}
+		
 		public void Toggle(bool state) {
 			_root.SetActive(state);
 		}

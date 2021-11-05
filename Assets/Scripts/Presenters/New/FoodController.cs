@@ -42,7 +42,13 @@ public class FoodController {
 		CookableFoodConfig cookableFoodConfigBurger = new CookableFoodConfig {
 			TotalPlaces = 3,
 			CookTime = 5,
-			OvercookTime = 0
+			OvercookTime = 7
+		};
+		
+		CookableFoodConfig cookableFoodConfigHotDog = new CookableFoodConfig {
+			TotalPlaces = 3,
+			CookTime = 5,
+			OvercookTime = 7
 		};
 
 		var allOrders = _orderGeneratorService.GetAllOrders();
@@ -56,6 +62,11 @@ public class FoodController {
 			BurgerData = new BurgerData {
 				OrderAssemblyConfig = orderAssemblyConfig,
 				CookableFoodConfig = cookableFoodConfigBurger,
+				PossibleOrders = allOrders.Clone()
+			},
+			HotDogsData = new HotDogsData {
+				OrderAssemblyConfig = orderAssemblyConfig,
+				CookableFoodConfig = cookableFoodConfigHotDog,
 				PossibleOrders = allOrders.Clone()
 			}
 		};

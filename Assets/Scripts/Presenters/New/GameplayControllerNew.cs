@@ -11,6 +11,8 @@ using Random = UnityEngine.Random;
 
 namespace CookingPrototype.Controllers {
 public class GameplayControllerNew {
+	public static event Action SessionEnded;
+	
 	private readonly CustomersControllerNew _customersControllerNew;
 	private readonly FoodController _foodController;
 	private readonly OrderGeneratorService _orderGeneratorService;
@@ -20,6 +22,8 @@ public class GameplayControllerNew {
 	private readonly GameplayResultWindowView _winWindowView;
 	private readonly GameplayResultWindowView _loseWindowView;
 	private readonly GameplayResultWindowView _startWindowView;
+
+	private CustomersConfig _customersConfig;
 	
 	public GameplayControllerNew(
 		GameplayMainScreenView gameplayMainScreenView,
@@ -37,9 +41,7 @@ public class GameplayControllerNew {
 		_loseWindowView = _gameplayMainScreenView.LoseWindowView;
 		_winWindowView = _gameplayMainScreenView.WinWindowView;
 	}
-
-	public static event Action SessionEnded;
-
+	
 	public void Initialize() {
 		_startWindowView.Init(StartGameButtonClickedCallback);
 		_loseWindowView.Init(RestartButtonClickedCallback);
@@ -47,32 +49,36 @@ public class GameplayControllerNew {
 	}
 
 	public void InitGameSession() {
-		_startWindowView.Show();
+		
+		// should be fetched from some data provider in dev stage
+		_customersConfig = new CustomersConfig {
+			TotalCustomersNumber = 15,
+			CustomerWaitTime = 18,
+			CustomerSpawnTime = 3,
+			MaxOrdersCount = 3,
+			AddedTimeOnServedOrder = 6f
+		};
+		
+		_customersConfig.LevelOrders = GetLevelOrders(_customersConfig);
+		
+		_startWindowView.Repaint(0,  _customersConfig.NeededFoodsInOrderToBeServed);
 	}
 	
 	public void StartGameSession() {
 		SessionEnded+= OnSessionEnded;
-
-		// this config should be fetched from the server or from some other provider
-		var customersConfig = new CustomersConfig {
-			TotalCustomersNumber = 15,
-			CustomerWaitTime = 18,
-			CustomerSpawnTime = 3,
-			MaxOrdersCount = 3
-		};
-
-		customersConfig.LevelOrders = GetLevelOrders(customersConfig);
-
+		
 		CustomersControllerNew.CustomerTaskCompleted +=
 			CustomersControllerNewOnCustomerTaskCompleted;
-		CustomersControllerNew.CustomerServed +=
-			CustomersControllerNewOnCustomerServed;
+		CustomersControllerNew.CustomerGenerated +=
+			CustomersControllerNewOnCustomerGenerated;
 		CustomersControllerNew.CustomerOrderServed +=
 			CustomersControllerNewOnCustomerOrderServed;
-		_customersControllerNew.InitGameSession(customersConfig);
-
+		
+		_customersControllerNew.InitGameSession(_customersConfig);
 		_foodController.InitGameSession();
-
+		
+		_gameplayTopUIView.RepaintCustomers(_customersConfig.TotalCustomersNumber);
+		_gameplayTopUIView.RepaintOrders(0, _customersConfig.NeededFoodsInOrderToBeServed);
 		_gameplayTopUIView.Show();
 	}
 
@@ -106,9 +112,8 @@ public class GameplayControllerNew {
 			_customersControllerNew.TotalTargetOrders);
 	}
 
-	private void CustomersControllerNewOnCustomerServed(int servedCount,
-		int totalNeeded) {
-		_gameplayTopUIView.RepaintCustomers(totalNeeded - servedCount);
+	private void CustomersControllerNewOnCustomerGenerated() {
+		_gameplayTopUIView.RepaintCustomers(_customersControllerNew.CustomersLeft);
 	}
 
 	private void CustomersControllerNewOnCustomerTaskCompleted(bool taskSucceeded) {
@@ -131,22 +136,25 @@ public class GameplayControllerNew {
 		
 		CustomersControllerNew.CustomerTaskCompleted -=
 			CustomersControllerNewOnCustomerTaskCompleted;
-		CustomersControllerNew.CustomerServed -=
-			CustomersControllerNewOnCustomerServed;
+		CustomersControllerNew.CustomerGenerated -=
+			CustomersControllerNewOnCustomerGenerated;
 		CustomersControllerNew.CustomerOrderServed -=
 			CustomersControllerNewOnCustomerOrderServed;
+		
+		_gameplayTopUIView.Hide();
 	}
 	
-	private List<OrderModel> GetLevelOrders(
+	private List<List<OrderModel>> GetLevelOrders(
 		CustomersConfig customersConfig) {
+		
 		var t = Enumerable
-			.Range(0,
-				Random.Range(customersConfig.TotalCustomersNumber,
-					customersConfig.TotalCustomersNumber
-					* customersConfig.MaxOrdersCount
-					+ 1))
-			.Select(x
-				=> _orderGeneratorService.GenerateRandomOrder())
+			.Range(0, customersConfig.TotalCustomersNumber)
+			.Select(x=> Enumerable
+				.Range(0,
+					Random.Range(1, customersConfig.MaxOrdersCount + 1))
+				.Select(y
+					=> _orderGeneratorService.GenerateRandomOrder())
+				.ToList())
 			.ToList();
 
 		return t;

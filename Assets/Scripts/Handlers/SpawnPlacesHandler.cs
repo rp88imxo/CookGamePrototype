@@ -39,5 +39,9 @@ public class SpawnPlacesHandler : MonoBehaviour {
 			.Where(x => x.childCount == 0)
 			.ToList();
 	}
+
+	public void RemoveAllPoints() {
+		_spawnPoints.Clear();
+	}
 }
 }

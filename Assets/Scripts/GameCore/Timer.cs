@@ -21,7 +21,7 @@ public class Timer : IDisposable
     
     private readonly TimeSpan _tickFrequency;
     
-    public TimeSpan TimeLeft { get; private set; }
+    public TimeSpan TimeLeft { get; set; }
 
     public TimeSpan InitialTime { get; private set; }
     public bool IsOn => _disposable != null;

@@ -13,7 +13,7 @@ public class PointerInputHandler : MonoBehaviour, IPointerUpHandler {
 	private int _neededPointerTaps;
 	
 	[SerializeField]
-	private float _timeBetweenTaps;
+	private float _timeBetweenTaps = 0.5f;
 
 	private Action _taped;
 

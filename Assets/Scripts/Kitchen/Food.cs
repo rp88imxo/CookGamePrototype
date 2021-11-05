@@ -1,6 +1,8 @@
 
+using CookingPrototype.GameCore;
+
 namespace CookingPrototype.Kitchen {
-	public sealed class Food {
+	public sealed class Food : IPrototype<Food> {
 		public enum FoodStatus {
 			Empty,
 			Raw,
@@ -30,6 +32,10 @@ namespace CookingPrototype.Kitchen {
 					return;
 				}
 			}
+		}
+
+		public Food Clone() {
+			return (Food)MemberwiseClone();
 		}
 	}
 }

@@ -74,10 +74,14 @@ public class CustomersViewPresenter : View {
 				Destroy(customer.gameObject);
 			}
 			
+			
 			_customerViews.Clear();
 		}
 
-	
+
+		public void HandleSessionEnd() {
+			Clear();
+		}
 }
 }
 

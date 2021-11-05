@@ -16,8 +16,7 @@ public abstract class BaseFoodPlacerHandler : MonoBehaviour
 	
 	protected Food CurrentFood;
 
-	public void Init(Func<Food, bool> foodPlacedCallback) {
-		OnFoodPlaced += foodPlacedCallback;
+	public void Init() {
 		CurrentFood = new Food(_foodName, _foodStatus);
 	}
 }

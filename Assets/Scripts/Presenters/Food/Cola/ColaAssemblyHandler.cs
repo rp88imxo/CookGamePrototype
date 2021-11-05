@@ -21,7 +21,9 @@ public class ColaAssemblyHandler
 
 	[SerializeField]
 	private PointerInputHandler _serveColaInput;
-	
+
+	public override event Action OrderServed;
+
 	private readonly Dictionary<OrderModelHandler, OrderView> _orderViews
 		=
 		new Dictionary<OrderModelHandler, OrderView>();
@@ -32,7 +34,7 @@ public class ColaAssemblyHandler
 		base.Init(orderAssemblyConfig,
 			possibleOrders,
 			onServeClickedCallback);
-		
+
 		_serveColaInput.Init(_serveZoneTapHandler);
 		_spawnPlaces.ForEach(x => x.gameObject.SetActive(false));
 		var totalActivePlaces = _spawnPlaces
@@ -45,8 +47,11 @@ public class ColaAssemblyHandler
 	}
 
 	public void _serveZoneTapHandler() {
-		var orderModelHandler = _orderViews.Keys.FirstOrDefault();
-		ONServeClicked(orderModelHandler);
+		var orderModelHandler =
+			_orderViews.Keys.FirstOrDefault(x => x.CurOrder.Count > 0);
+		if ( orderModelHandler != null ) {
+			ONServeClicked(orderModelHandler);
+		}
 	}
 
 	private void CreateViews() {
@@ -57,7 +62,7 @@ public class ColaAssemblyHandler
 					ONOrderUpdatedCallback);
 			var go = Instantiate(_orderViewPrefab, spawnPoint);
 			go.Init(modelHandler, null, null);
-			go.Repaint(new OrderDataViewModel {FoodComponents = null});
+			go.Repaint(new OrderDataViewModel());
 
 			_orderViews.Add(modelHandler, go);
 		}
@@ -69,24 +74,34 @@ public class ColaAssemblyHandler
 			FoodComponents = obj.CurOrder
 		});
 	}
-	
+
 	private void ONServeClicked(OrderModelHandler orderModelHandler) {
-		var res= _onServeClicked?.Invoke(orderModelHandler.CurOrder);
+		var res = _onServeClicked?.Invoke(orderModelHandler.CurOrder);
 		if ( res.HasValue && res.Value ) {
 			RemoveView(orderModelHandler);
+			OrderServed?.Invoke();
 		}
 	}
-	
+
 	private void RemoveView(OrderModelHandler orderModelHandler) {
 		var orderView = _orderViews[orderModelHandler];
-		orderView.DestroySelf();
-		_orderViews.Remove(orderModelHandler);
+		orderView.Repaint(new OrderDataViewModel());
+		orderModelHandler.Reset(DefaultPossibleOrders);
 	}
-	
-	
+
+
 	public override bool TryAddFoodComponent(Food food) {
 		return _orderViews.Keys.Any(orderModelHandler
 			=> orderModelHandler.TryPlaceFood(food));
+	}
+
+	public override void HandleSessionEnded() {
+		foreach ( var keyValuePair in _orderViews ) {
+			Destroy(keyValuePair.Value.gameObject);
+		}
+
+		_spawnPlacesHandler.RemoveAllPoints();
+		_orderViews.Clear();
 	}
 }
 }

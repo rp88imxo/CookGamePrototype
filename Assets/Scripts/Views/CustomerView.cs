@@ -25,7 +25,7 @@ public class CustomerViewModel {
 		[SerializeField]
 		private Transform _ordersContainer;
 		
-		private readonly Dictionary<string,CustomerOrderView> _orders = new Dictionary<string,CustomerOrderView>();
+		private readonly List<CustomerOrderView> _orders = new List<CustomerOrderView>();
 
 		public async UniTaskVoid Repaint(CustomerViewModel customerViewModel) {
 			_customerIcon.gameObject.SetActive(false);
@@ -37,9 +37,11 @@ public class CustomerViewModel {
 		}
 
 		public void RepaintServedOrder(string orderModelName) {
-			var orderView = _orders[orderModelName];
+			var orderView =
+				_orders.Find(x => x.OrderName == orderModelName);
+			
 			orderView.DestroySelf();
-			_orders.Remove(orderModelName);
+			_orders.Remove(orderView);
 		}
 
 		public void RepaintTimer(float timeLeft) {
@@ -48,9 +50,10 @@ public class CustomerViewModel {
 
 		private async UniTaskVoid CreateOrders(IEnumerable<string> ordersViewsNames) {
 			foreach ( var order in ordersViewsNames ) {
-				var orderViewPrefab = await Resources.LoadAsync<GameObject>($"Prefabs/Orders/{order}") as CustomerOrderView;
+				var orderViewPrefab = await Resources.LoadAsync<CustomerOrderView>($"Prefabs/Orders/{order}") as CustomerOrderView;
 				var go = Instantiate(orderViewPrefab, _ordersContainer);
-				_orders.Add(order,go);
+				go.Init(order);
+				_orders.Add(go);
 			}
 		}
 	}
