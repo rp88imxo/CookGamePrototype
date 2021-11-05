@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using CookingPrototype.GameCore;
 using CookingPrototype.Kitchen.Controllers;
@@ -27,7 +28,7 @@ public class FoodController {
 	public void InitGameSession() {
 		GameplayControllerNew.SessionEnded += GameplayControllerNewOnSessionEnded;
 
-		#region DATA
+		#region DATA // move outside of this controller
 
 		OrderAssemblyConfig orderAssemblyConfig = new OrderAssemblyConfig {
 			TotalPlaces = 3
@@ -76,9 +77,13 @@ public class FoodController {
 		_foodViewPresenter.InitGameSession(data, ONServeClickedCallback );
 	}
 
-	private bool ONServeClickedCallback(List<string> arg) {
+	private void ONServeClickedCallback(List<string> arg, Action successCallback, Action failCallback) {
 		var order = _orderGeneratorService.FindOrder(arg);
-		return order != null && _customersControllerNew.ServeOrder(order);
+		if ( order== null ) {
+			failCallback?.Invoke();
+		}
+		
+		_customersControllerNew.ServeOrder(order,successCallback,failCallback);
 	}
 
 	private void GameplayControllerNewOnSessionEnded() {

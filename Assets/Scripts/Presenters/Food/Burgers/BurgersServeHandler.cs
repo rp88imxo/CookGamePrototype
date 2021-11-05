@@ -13,7 +13,7 @@ public class BurgersServeHandler : FoodServeHandler<BurgerData> {
 	private CookableFoodHandler _cookableFoodHandler;
 
 	public override void InitGameSession(BurgerData foodServeAssemblyData,
-		Func<List<string>, bool> onServeClickedCallback) {
+		Action<List<string>, Action,Action> onServeClickedCallback) {
 		base.InitGameSession(foodServeAssemblyData, onServeClickedCallback);
 		
 		_cookableFoodHandler.Init(foodServeAssemblyData.CookableFoodConfig,

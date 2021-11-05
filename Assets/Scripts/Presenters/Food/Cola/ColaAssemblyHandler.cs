@@ -28,9 +28,11 @@ public class ColaAssemblyHandler
 		=
 		new Dictionary<OrderModelHandler, OrderView>();
 
+	private OrderModelHandler _currentServeOrderModel;
+
 	public override void Init(OrderAssemblyConfig orderAssemblyConfig,
 		List<OrderModel> possibleOrders,
-		Func<List<string>, bool> onServeClickedCallback) {
+		Action<List<string>, Action,Action> onServeClickedCallback) {
 		base.Init(orderAssemblyConfig,
 			possibleOrders,
 			onServeClickedCallback);
@@ -76,11 +78,19 @@ public class ColaAssemblyHandler
 	}
 
 	private void ONServeClicked(OrderModelHandler orderModelHandler) {
-		var res = _onServeClicked?.Invoke(orderModelHandler.CurOrder);
-		if ( res.HasValue && res.Value ) {
-			RemoveView(orderModelHandler);
-			OrderServed?.Invoke();
-		}
+		_currentServeOrderModel = orderModelHandler;
+		_onServeClicked?.Invoke(orderModelHandler.CurOrder, HandleServeSuccess, HandleServeFail );
+	}
+
+	private void HandleServeFail() {
+		Debug.Log("Failed to serve cola!");
+		_currentServeOrderModel = null;
+	}
+
+	private void HandleServeSuccess() {
+		RemoveView(_currentServeOrderModel);
+		_currentServeOrderModel = null;
+		OrderServed?.Invoke();
 	}
 
 	private void RemoveView(OrderModelHandler orderModelHandler) {

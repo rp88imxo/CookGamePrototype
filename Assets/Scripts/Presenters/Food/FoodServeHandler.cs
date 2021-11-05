@@ -19,7 +19,7 @@ public abstract class FoodServeHandler<T> : MonoBehaviour
 	protected List<FoodPlacerHandler> _foodPlacerHandlers;
 
 	public virtual void InitGameSession(T foodServeAssemblyData,
-		Func<List<string>, bool> onServeClickedCallback) {
+		Action<List<string>, Action, Action > onServeClickedCallback) {
 		_orderAssemblyHandler.Init(
 			foodServeAssemblyData.OrderAssemblyConfig,
 			foodServeAssemblyData.PossibleOrders,

@@ -20,11 +20,11 @@ public class CustomersConfig {
 	public int MaxOrdersCount { get; set; } = 3;
 	public float AddedTimeOnServedOrder { get; set; } = 6f;
 	public List<List<OrderModel>> LevelOrders { get; set; }
-	public int NeededFoodsInOrderToBeServed => LevelOrders
-		.SelectMany(x => x)
-		.Count() - 2;
 
-	
+	public int NeededFoodsInOrderToBeServed => LevelOrders
+			.SelectMany(x => x)
+			.Count()
+		- 2;
 }
 
 public class QueueCustomer {
@@ -124,7 +124,7 @@ public class CustomersControllerNew {
 	/// Customer generated
 	/// </summary>
 	public static event Action CustomerGenerated;
-	
+
 	/// <summary>
 	/// Customer fully served
 	/// </summary>
@@ -147,12 +147,14 @@ public class CustomersControllerNew {
 
 	public int TotalServedOrders
 		=> _sessionModel.TotalServedFoodsInOrder;
+
 	public int TotalTargetOrders
 		=> _currentCustomersConfig.NeededFoodsInOrderToBeServed;
+
 	public int CustomersLeft
 		=> _currentCustomersConfig.TotalCustomersNumber
 			- _sessionModel.TotalGeneratedCustomers;
-	
+
 	// Should be injected via DI
 	private readonly GameplayMainScreenView _gameplayMainScreenView;
 	private readonly CustomersViewPresenter _customersViewPresenter;
@@ -183,10 +185,11 @@ public class CustomersControllerNew {
 
 	public void InitGameSession(CustomersConfig config) {
 		GameplayControllerNew.SessionEnded += HandleSessionEnded;
-		CustomerOrderServed += OnCustomerOrderServed;
-		CustomerServed += OnCustomerUpdated;
-		CustomerLeft += OnCustomerUpdated;
-		
+
+		Debug.Assert(
+			config.TotalCustomersNumber == config.LevelOrders.Count,
+			"Total customers and total level orders dimensions should be equal!");
+
 		_sessionModel.Reset();
 
 		_currentCustomersConfig = config;
@@ -200,10 +203,11 @@ public class CustomersControllerNew {
 			.OnCompleted(TryGenerateCustomer)
 			.Start();
 	}
-	
+
 
 	private void HandleSessionEnded() {
 		GameplayControllerNew.SessionEnded -= HandleSessionEnded;
+
 		foreach ( var customer in _queueCustomers.Values ) {
 			customer.StopTimer();
 		}
@@ -228,7 +232,7 @@ public class CustomersControllerNew {
 			CustomerTaskCompleted?.Invoke(true);
 		}
 	}
-	
+
 	#endregion
 
 	private bool IsCustomerTaskCompleted() {
@@ -237,11 +241,12 @@ public class CustomersControllerNew {
 			== _currentCustomersConfig.TotalCustomersNumber
 			&& _queueCustomers.Count == 0;
 	}
-	
+
 	private void TryGenerateCustomer() {
 		_customersTimerGenerator.Reset();
 
-		if ( _customersViewPresenter.HasFreeSpawnPoint && CanGenerateCustomer()) {
+		if ( _customersViewPresenter.HasFreeSpawnPoint
+			&& CanGenerateCustomer() ) {
 			var customerModel = GenerateCustomer();
 
 			var queueCustomer = new QueueCustomer(customerModel,
@@ -268,7 +273,7 @@ public class CustomersControllerNew {
 			_queueCustomers.Add(customerModel.Id, queueCustomer);
 
 			queueCustomer.StartTimer();
-			
+
 			CustomerGenerated?.Invoke();
 		}
 
@@ -279,7 +284,7 @@ public class CustomersControllerNew {
 		return _sessionModel.TotalGeneratedCustomers
 			< _currentCustomersConfig.TotalCustomersNumber;
 	}
-	
+
 	private bool CheckTaskCompletion() {
 		return _sessionModel
 				.TotalServedFoodsInOrder
@@ -293,6 +298,7 @@ public class CustomersControllerNew {
 		_queueCustomers.Remove(obj.Id);
 		_customersViewPresenter.RemoveCustomerViewModelById(obj.Id);
 		CustomerLeft?.Invoke();
+		OnCustomerUpdated();
 	}
 
 	private void ONTimerTicked(CustomerModel arg1, TimeSpan arg2) {
@@ -304,13 +310,9 @@ public class CustomersControllerNew {
 
 	#region SOME_PUBLIC_API
 
-	/// <summary>
-	///  Пытаемся обслужить посетителя с заданным заказом и наименьшим оставшимся временем ожидания.
-	///  Если у посетителя это последний оставшийся заказ из списка, то отпускаем его.
-	/// </summary>
-	/// <param name="orderModel">Заказ, который пытаемся отдать</param>
-	/// <returns>Флаг - результат, удалось ли успешно отдать заказ</returns>
-	public bool ServeOrder(OrderModel orderModel) {
+	public void ServeOrder(OrderModel orderModel,
+		Action onOrderServeSucceeded,
+		Action onOrderServeFailed) {
 		var queueCustomer = _queueCustomers.Values
 			.Where(x
 				=> x.Customer.Orders.Any(order
@@ -319,16 +321,23 @@ public class CustomersControllerNew {
 			.FirstOrDefault();
 
 		if ( queueCustomer == null ) {
-			return false;
+			onOrderServeFailed?.Invoke();
+			return;
 		}
 
 		_customersViewPresenter.ServeOrderByName(
 			queueCustomer.Customer.Id,
 			orderModel.Name);
-		
+
 		queueCustomer.Customer.Orders.Remove(orderModel);
 		_sessionModel.TotalServedFoodsInOrder++;
+
+		queueCustomer.AddTime(_currentCustomersConfig
+			.AddedTimeOnServedOrder);
+
+		onOrderServeSucceeded?.Invoke();
 		CustomerOrderServed?.Invoke(orderModel);
+		OnCustomerOrderServed(orderModel);
 
 		if ( !queueCustomer.HasAnyOrders ) {
 			queueCustomer.StopTimer();
@@ -339,18 +348,13 @@ public class CustomersControllerNew {
 			_sessionModel.TotalServedCustomers++;
 
 			CustomerServed?.Invoke();
+			OnCustomerUpdated();
 		}
-		else {
-			queueCustomer.AddTime(_currentCustomersConfig.AddedTimeOnServedOrder);
-		}
-
-		return true;
 	}
 
 	#endregion
 
 
-	// Should be moved outside so we can fetch data from server or internal generator and act like provider via some interface type like ICustomerModelProvider
 	private CustomerModel GenerateCustomer() {
 		var customer = new CustomerModel() {
 			Id = _sessionModel
@@ -367,6 +371,5 @@ public class CustomersControllerNew {
 		GetOrders(List<List<OrderModel>> levelOrders) {
 		return levelOrders[_sessionModel.TotalGeneratedCustomers].Clone();
 	}
-	
 }
 }

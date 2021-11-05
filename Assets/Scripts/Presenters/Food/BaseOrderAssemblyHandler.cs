@@ -8,14 +8,14 @@ public abstract class BaseOrderAssemblyHandler : MonoBehaviour {
 	
 	protected OrderAssemblyConfig _currentOrderAssemblyConfig;
 	protected List<OrderModel> DefaultPossibleOrders;
-	protected Func<List<string>, bool> _onServeClicked;
+	protected Action<List<string>, Action, Action> _onServeClicked;
 	public abstract event Action OrderServed;
 
 	public abstract bool TryAddFoodComponent(Food food);
 	
 	public virtual void Init(OrderAssemblyConfig orderAssemblyConfig,
 		List<OrderModel> possibleOrders,
-		Func<List<string>, bool> onServeClickedCallback) {
+		Action<List<string>, Action, Action> onServeClickedCallback) {
 		DefaultPossibleOrders = possibleOrders;
 		_onServeClicked = onServeClickedCallback;
 		_currentOrderAssemblyConfig = orderAssemblyConfig;

@@ -11,7 +11,7 @@ public class ColaServeHandler : FoodServeHandler<ColaAssemblyData> {
 	private ColaFoodHandler _colaFoodHandler;
 
 	public override void InitGameSession(ColaAssemblyData foodServeAssemblyData,
-		Func<List<string>, bool> onServeClickedCallback) {
+		Action<List<string>, Action, Action> onServeClickedCallback) {
 		base.InitGameSession(foodServeAssemblyData, onServeClickedCallback);
 
 		_colaFoodHandler.Init(

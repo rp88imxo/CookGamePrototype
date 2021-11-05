@@ -75,6 +75,8 @@ public class OrderAssemblyHandler : BaseOrderAssemblyHandler {
 	[SerializeField]
 	private SpawnPlacesHandler _spawnPlacesHandler;
 
+	private OrderModelHandler _currentServeOrder;
+	
 	public override event Action OrderServed;
 	
 	private readonly Dictionary<OrderModelHandler, OrderView> _orderViews
@@ -83,7 +85,7 @@ public class OrderAssemblyHandler : BaseOrderAssemblyHandler {
 
 	public override void Init(OrderAssemblyConfig orderAssemblyConfig,
 		List<OrderModel> possibleOrders,
-		Func<List<string>, bool> onServeClickedCallback) {
+		Action<List<string>, Action,Action> onServeClickedCallback) {
 		base.Init(orderAssemblyConfig,
 			possibleOrders,
 			onServeClickedCallback);
@@ -126,15 +128,29 @@ public class OrderAssemblyHandler : BaseOrderAssemblyHandler {
 	}
 
 	private void ONServeClicked(OrderModelHandler orderModelHandler) {
-	var res= _onServeClicked?.Invoke(orderModelHandler.CurOrder);
-	if ( res.HasValue && res.Value ) {
-		RemoveView(orderModelHandler);
-		OrderServed?.Invoke();
-	}
+		_currentServeOrder = orderModelHandler;
+		_onServeClicked?.Invoke(orderModelHandler.CurOrder,
+			HandleOrderServeSucceeded,
+			HandleOrderServeFailed);
+		// if ( res.HasValue && res.Value ) {
+		// 	RemoveView(orderModelHandler);
+		// 	OrderServed?.Invoke();
+		// }
 	}
 
 	#endregion
 
+	private void HandleOrderServeSucceeded() {
+		RemoveView(_currentServeOrder);
+		_currentServeOrder = null;
+		OrderServed?.Invoke();
+	}
+	
+	private void HandleOrderServeFailed() {
+		Debug.Log("Failed to serve the order!");
+		_currentServeOrder = null;
+	}
+	
 	private void RemoveView(OrderModelHandler orderModelHandler) {
 		var orderView = _orderViews[orderModelHandler];
 		orderView.Repaint(new OrderDataViewModel {FoodComponents = null});

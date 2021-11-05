@@ -14,7 +14,7 @@ public class HotDogsServeHandler : FoodServeHandler<HotDogsData> {
 
 	public override void InitGameSession(
 		HotDogsData foodServeAssemblyData,
-		Func<List<string>, bool> onServeClickedCallback) {
+		Action<List<string>, Action, Action> onServeClickedCallback) {
 		base.InitGameSession(foodServeAssemblyData,
 			onServeClickedCallback);
 

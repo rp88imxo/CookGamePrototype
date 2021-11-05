@@ -22,14 +22,14 @@ public class FoodViewPresenter : View {
 	[SerializeField]
 	private HotDogsServeHandler _hotDogsServeHandler;
 
-	private Func<List<string>, bool> _onServeClickedCallback;
+	private Action<List<string>, Action, Action> _onServeClickedCallback;
 
 	public void Init() {
 		Hide();
 	}
 
 	public void InitGameSession(FoodData foodData,
-		Func<List<string>, bool> onServeClickedCallback) {
+		Action<List<string>, Action, Action> onServeClickedCallback) {
 		Show();
 		_onServeClickedCallback = onServeClickedCallback;
 		_colaServeHandler.InitGameSession(foodData.ColaAssemblyData,
@@ -47,9 +47,8 @@ public class FoodViewPresenter : View {
 		_hotDogsServeHandler.HandleSessionEnded();
 	}
 
-	private bool ONServeClickedCallback(List<string> obj) {
-		var res = _onServeClickedCallback?.Invoke(obj);
-		return res ?? false;
+	private void ONServeClickedCallback(List<string> obj, Action successCallback, Action failCallback) {
+		_onServeClickedCallback?.Invoke(obj, successCallback, failCallback);
 	}
 }
 }
