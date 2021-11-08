@@ -1,4 +1,4 @@
-# TestDeveloperTask
+# Cook Game Prototype Test
 ### Start Game
 ![Alt text](Images/1.jpg?raw=true "Start Game")
 ### Gameplay
